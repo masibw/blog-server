@@ -1,0 +1,57 @@
+version: '3'
+services:
+  nginx:
+    image: steveltn/https-portal:1.7.3
+    restart: always
+    links:
+      - app:app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Nginxの設定ファイルを上書きする
+      - ./build/nginx/conf/localhost.ssl.conf.erb:/var/lib/nginx-conf/localhost.conf.erb:ro
+    environment:
+      STAGE: local
+      DOMAINS: 'localhost => https://localhost'
+    networks:
+      - blog-network
+
+  db:
+    image: mysql:8.0
+    command: mysqld
+    volumes:
+      # MySQLの設定ファイル
+      - ./build/db/my.cnf:/etc/mysql/conf.d/my.cnf
+      # DBのデータを永続化する
+      - db-data:/var/lib/mysql
+    # environmentはenv_fileの前に読み込まれるのでenv_fileで直接環境変数を設定する
+    env_file:
+      - .env.local
+    networks:
+      - blog-network
+
+  app:
+    build:
+      context: .
+      dockerfile: ./build/app/Dockerfile
+    command: /blog-server
+    depends_on:
+      - db
+    env_file:
+      - .env.local
+    entrypoint:
+      - dockerize
+      - -timeout
+      - 60s
+      - -wait
+      - tcp://db:3306
+    networks:
+      - blog-network
+
+volumes:
+  db-data:
+
+networks:
+  blog-network:
+    driver: bridge
