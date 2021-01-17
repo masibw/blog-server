@@ -1,8 +1,9 @@
 name: Test
-on: Push
+on: push
 
 jobs:
   lint:
+    name: Lint codes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -13,6 +14,7 @@ jobs:
           args: --enable=golint,gosec,prealloc,gocognit,bodyclose,gofmt
 
   goone:
+    name: Check whether if n+1 problems exists
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
