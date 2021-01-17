@@ -1,0 +1,24 @@
+name: Test
+on: push
+
+jobs:
+  test:
+    name: Test local sources
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go 1.15.6
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.6
+      - uses: actions/checkout@v2
+      - name: Restore cache
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys:  ${{ runner.os }}-go-
+      - name: Get dependencies
+        run: go mod download
+      - name: Test
+        run: go test ./...
