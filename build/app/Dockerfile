@@ -23,6 +23,8 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-COPY --from=build /go/src/github.com/masibw/blog-server/blog-server /
 
+COPY ./migrations /migrations
+
+COPY --from=build /go/src/github.com/masibw/blog-server/blog-server /
 RUN chmod a+x /blog-server
