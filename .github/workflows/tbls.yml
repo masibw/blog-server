@@ -1,0 +1,22 @@
+name: Tbls
+on: pull_request
+
+jobs:
+  tbls:
+    name: Renew DB schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Start blog-server docker
+        run:  docker-compose  -f docker-compose.local.yml up -d --build db app
+      - name: Wait for db connection
+        run: sleep 10
+      - name: run tbls doc
+        run: docker run --rm --net=blog-server_blog-network --env-file=.env.local -v $PWD:/work k1low/tbls doc -f
+      - name: Commit tbls changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: tbls
+          author_email: tbls@example.com
+          message: 'Renew DB table docs'
+          add: 'docs/'

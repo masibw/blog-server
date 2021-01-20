@@ -1,0 +1,4 @@
+dsn: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+
+# Path to generate document
+docPath: docs/schema
