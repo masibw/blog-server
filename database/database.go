@@ -4,12 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/masibw/blog-server/config"
+	"github.com/masibw/blog-server/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"moul.io/zapgorm2"
 )
 
 func NewDB() (db *gorm.DB, err error) {
-	db, err = gorm.Open(mysql.Open(config.DSN()), &gorm.Config{})
+	logger := zapgorm2.New(log.GetPureLogger())
+	logger.SetAsDefault()
+	db, err = gorm.Open(mysql.Open(config.DSN()), &gorm.Config{Logger: logger})
 	if err != nil {
 		err = fmt.Errorf("failed to open connection: %w", err)
 		return
