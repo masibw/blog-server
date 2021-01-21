@@ -20,6 +20,8 @@ services:
   db:
     image: mysql:8.0
     command: mysqld
+    ports:
+      - "3306:3306"
     volumes:
       # MySQLの設定ファイル
       - ./build/db/my.cnf:/etc/mysql/conf.d/my.cnf
