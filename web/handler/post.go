@@ -31,7 +31,7 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 	post, err := p.postUC.StorePost(postDTO)
 	if err != nil {
 		logger.Errorf("store post", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{

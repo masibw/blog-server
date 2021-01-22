@@ -3,9 +3,10 @@ package entity
 import (
 	"time"
 
-	"github.com/masibw/blog-server/domain/dto"
-
 	"github.com/masibw/blog-server/util"
+
+	"github.com/Songmu/flextime"
+	"github.com/masibw/blog-server/domain/dto"
 )
 
 type Post struct {
@@ -19,9 +20,9 @@ type Post struct {
 	UpdatedAt    time.Time
 }
 
-func NewPost(thumbnailURL string, title string, content string, permalink string, isDraft bool) *Post {
+func NewPost(title string, thumbnailURL string, content string, permalink string, isDraft bool) *Post {
 	return &Post{
-		ID:           util.GenUULD(),
+		ID:           util.Generate(flextime.Now()),
 		Title:        title,
 		ThumbnailURL: thumbnailURL,
 		Content:      content,

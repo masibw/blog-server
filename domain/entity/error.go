@@ -2,6 +2,8 @@ package entity
 
 import "errors"
 
+// エラーの分岐でMYSQLのエラーコードを用いている https://dev.mysql.com/doc/refman/5.6/ja/error-messages-server.html
+
 var (
 	// ErrUserNotFound はユーザが存在しないエラーを表します。
 	ErrUserNotFound = errors.New("user not found")

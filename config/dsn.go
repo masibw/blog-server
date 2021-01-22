@@ -14,7 +14,7 @@ func PureDSN() string {
 		"%s:%s@tcp(%s:%s)/%s",
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
-		"db",
+		os.Getenv("DB_HOST"),
 		"3306",
 		os.Getenv("MYSQL_DATABASE"),
 	)

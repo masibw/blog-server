@@ -1,3 +1,6 @@
+ENV_TEST_FILE := .env.test
+ENV_TEST = $(shell cat $(ENV_TEST_FILE))
+
 .PHONY: up
 up:
 	docker-compose -f docker-compose.local.yml up -d --build
@@ -12,7 +15,7 @@ logs:
 
 .PHONY: test
 test:
-	go test -v ./...
+	$(ENV_TEST) go test -v ./... -count=1
 
 .PHONY: deploy
 deploy: prod_down prod_update prod_up
