@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -21,7 +22,8 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	m.Run()
+	code := m.Run()
+	os.Exit(code)
 }
 
 func TestPostRepository_Store(t *testing.T) {

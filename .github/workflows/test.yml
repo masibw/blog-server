@@ -20,5 +20,9 @@ jobs:
           restore-keys:  ${{ runner.os }}-go-
       - name: Get dependencies
         run: go mod download
+      - name: Start blog-server docker
+        run: docker-compose  -f docker-compose.local.yml up -d --build db app
+      - name: Wait for db connection
+        run: sleep 10
       - name: Test
-        run: go test ./...
+        run: make test

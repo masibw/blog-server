@@ -15,7 +15,7 @@ import (
 	"github.com/masibw/blog-server/domain/dto"
 )
 
-func TestPostUseCase_StorePost(t *testing.T) {
+func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
 	defer flextime.Restore()
