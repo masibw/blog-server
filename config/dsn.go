@@ -6,7 +6,7 @@ import (
 )
 
 func DSN() string {
-	return PureDSN() + "?parseTime=true&collation=utf8mb4_bin"
+	return PureDSN() + "?parseTime=true&loc=Asia%2FTokyo&collation=utf8mb4_bin"
 }
 
 func PureDSN() string {

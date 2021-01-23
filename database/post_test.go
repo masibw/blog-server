@@ -99,7 +99,11 @@ func TestPostRepository_Store(t *testing.T) {
 
 func TestPostRepository_FindByPermalink(t *testing.T) {
 	tx := db.Begin()
-	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
 	defer flextime.Restore()
 
 	if err := tx.Create(&entity.Post{
@@ -164,7 +168,11 @@ func TestPostRepository_FindByPermalink(t *testing.T) {
 
 func TestPostRepository_FindAll(t *testing.T) {
 	tx := db.Begin()
-	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
 	defer flextime.Restore()
 
 	existsPosts := []*entity.Post{{

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"os"
+	"time"
 
 	"github.com/masibw/blog-server/usecase"
 
@@ -21,7 +22,7 @@ import (
 func main() {
 	logger := log.GetLogger()
 	logger.Infof("Initialized logger")
-
+	time.Local = time.FixedZone("JST", 9*60*60)
 	m, err := migrate.New("file://"+os.Getenv("MIGRATION_FILE"), "mysql://"+config.PureDSN())
 	if err != nil {
 		logger.Fatal(err)

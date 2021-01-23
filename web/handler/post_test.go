@@ -94,7 +94,11 @@ func TestPostHandler_StorePost(t *testing.T) {
 
 func TestPostHandler_GetPosts(t *testing.T) {
 
-	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
 	defer flextime.Restore()
 
 	existsPosts := []*entity.Post{{

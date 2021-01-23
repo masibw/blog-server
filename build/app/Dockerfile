@@ -17,7 +17,8 @@ FROM alpine:3.13.0
 
 ENV DOCKERIZE_VERSION v0.6.1
 
-RUN apk add --no-cache bash ca-certificates curl openssl
+RUN apk add --no-cache bash ca-certificates curl openssl tzdata && \
+    cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \

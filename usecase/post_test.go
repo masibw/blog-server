@@ -19,7 +19,11 @@ import (
 
 func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 
-	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
 	defer flextime.Restore()
 
 	tests := []struct {
@@ -132,7 +136,11 @@ func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 
 func TestPostUseCase_GetPosts(t *testing.T) {
 
-	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
 	defer flextime.Restore()
 
 	existsPosts := []*entity.Post{{
