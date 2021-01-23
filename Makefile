@@ -20,10 +20,14 @@ up-test-db:
 .PHONY: down-test-db
 down-test-db:
 	docker stop blog-server_test_db_1
-.PHONY: test
 
+.PHONY: test
 test:
 	$(ENV_TEST) richgo test -v ./... -count=1
+
+.PHONY: lint
+lint:
+	golangci-lint run --out-format=github-actions --enable=golint,gosec,prealloc,gocognit,bodyclose,gofmt
 
 
 .PHONY: deploy
