@@ -37,3 +37,10 @@ func (r *PostRepository) Store(post *entity.Post) error {
 	}
 	return nil
 }
+
+func (r *PostRepository) FindAll() (posts []*entity.Post, err error) {
+	if err = r.db.Find(&posts).Error; err != nil {
+		err = fmt.Errorf("find all posts: %w", err)
+	}
+	return
+}

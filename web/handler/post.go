@@ -38,3 +38,19 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 		"post": post,
 	})
 }
+
+// GetPosts は POST /posts に対応するハンドラーです。
+func (p *PostHandler) GetPosts(c *gin.Context) {
+	logger := log.GetLogger()
+
+	posts, err := p.postUC.GetPosts()
+	if err != nil {
+		logger.Errorf("get posts", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"posts": posts,
+	})
+}

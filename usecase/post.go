@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Songmu/flextime"
-
 	"github.com/masibw/blog-server/domain/dto"
 	"github.com/masibw/blog-server/domain/entity"
 	"github.com/masibw/blog-server/domain/repository"
@@ -46,4 +45,23 @@ func (p *PostUseCase) StorePost(postDTO *dto.PostDTO) (*dto.PostDTO, error) {
 	}
 
 	return post.ConvertToDTO(), nil
+}
+
+func (p *PostUseCase) GetPosts() (postDTOs []*dto.PostDTO, err error) {
+	var posts []*entity.Post
+	posts, err = p.postRepository.FindAll()
+	if err != nil {
+		err = fmt.Errorf("get posts: %w", err)
+		return
+	}
+
+	for _, post := range posts {
+
+		// Markdownをhtmlへパースしている
+		post.ConvertContentToHTML()
+
+		postDTOs = append(postDTOs, post.ConvertToDTO())
+	}
+
+	return
 }
