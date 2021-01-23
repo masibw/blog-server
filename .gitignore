@@ -17,3 +17,8 @@
 
 .env.secret
 .env.prod
+
+
+
+# git管理するもの
+!.env.test

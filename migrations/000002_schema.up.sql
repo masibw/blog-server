@@ -1,0 +1,1 @@
+ALTER TABLE posts RENAME COLUMN thumnail_url TO thumbnail_url
