@@ -1,4 +1,4 @@
-# blog-local
+# blog_local
 
 ## Tables
 
