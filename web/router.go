@@ -23,6 +23,7 @@ func NewServer(postUC *usecase.PostUseCase) (e *gin.Engine) {
 	v1 := e.Group("/api/v1")
 
 	posts := v1.Group("/posts")
+	posts.GET("", postHandler.GetPosts)
 	posts.POST("", postHandler.StorePost)
 
 	return

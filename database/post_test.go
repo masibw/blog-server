@@ -3,9 +3,10 @@ package database
 import (
 	"errors"
 	"os"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/masibw/blog-server/config"
@@ -150,10 +151,68 @@ func TestPostRepository_FindByPermalink(t *testing.T) {
 			r := &PostRepository{db: tx}
 			got, err := r.FindByPermalink(tt.permalink)
 			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("Store() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("FindByPermalink() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("FindByPermalink() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("FindByPermalink() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+
+	tx.Rollback()
+}
+
+func TestPostRepository_FindAll(t *testing.T) {
+	tx := db.Begin()
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
+	defer flextime.Restore()
+
+	existsPosts := []*entity.Post{{
+		ID:           "abcdefghijklmnopqrstuvwxyz",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}, {
+		ID:           "abcdefghijklmnopqrstuvwxy2",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink2",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}}
+
+	if err := tx.Create(existsPosts).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name    string
+		wantErr error
+	}{
+		{
+			name:    "存在する投稿を正常に全件取得できる",
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &PostRepository{db: tx}
+			got, err := r.FindAll()
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("FindAll()  error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if len(got) != len(existsPosts) {
+				t.Errorf("FindAll() does not fetch all posts got = %v, want = %v", got, existsPosts)
 			}
 		})
 	}

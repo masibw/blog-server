@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/Songmu/flextime"
 
 	"github.com/golang/mock/gomock"
@@ -124,6 +126,103 @@ func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 				t.Errorf("StorePost() PublishedAt does not set got: %v, want: %v", got.PublishedAt, flextime.Now())
 			}
 
+		})
+	}
+}
+
+func TestPostUseCase_GetPosts(t *testing.T) {
+
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, time.UTC))
+	defer flextime.Restore()
+
+	existsPosts := []*entity.Post{{
+		ID:           "abcdefghijklmnopqrstuvwxyz",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}, {
+		ID:           "abcdefghijklmnopqrstuvwxy2",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink2",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}}
+
+	tests := []struct {
+		name                  string
+		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
+		want                  []*dto.PostDTO
+		wantErr               bool
+	}{
+		{
+			name: "postDTOsを返すこと",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindAll().Return(existsPosts, nil)
+			},
+			want: []*dto.PostDTO{
+				{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "<p>new_content</p>\n",
+					Permalink:    "new_permalink",
+					IsDraft:      func() *bool { b := false; return &b }(),
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  flextime.Now(),
+				},
+				{
+					ID:           "abcdefghijklmnopqrstuvwxy2",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "<p>new_content</p>\n",
+					Permalink:    "new_permalink2",
+					IsDraft:      func() *bool { b := false; return &b }(),
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  flextime.Now(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "FindAllがエラーを返した時はpostDTOsが空であること",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindAll().Return(nil, errors.New("dummy error"))
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mr := mock_repository.NewMockPost(ctrl)
+			tt.prepareMockPostRepoFn(mr)
+			p := &PostUseCase{
+				postRepository: mr,
+			}
+
+			got, err := p.GetPosts()
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetPosts() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("GetPosts() mismatch (-want +got):\n%s", cmp.Diff(tt.want, got))
+			}
 		})
 	}
 }

@@ -8,7 +8,10 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/golang/mock v1.4.4
+	github.com/google/go-cmp v0.5.1
+	github.com/microcosm-cc/bluemonday v1.0.4
 	github.com/oklog/ulid v1.3.1
+	github.com/russross/blackfriday/v2 v2.1.0
 	go.uber.org/zap v1.15.0
 	gorm.io/driver/mysql v1.0.3
 	gorm.io/gorm v1.20.11

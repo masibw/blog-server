@@ -33,6 +33,21 @@ func (m *MockPost) EXPECT() *MockPostMockRecorder {
 	return m.recorder
 }
 
+// FindAll mocks base method
+func (m *MockPost) FindAll() ([]*entity.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAll")
+	ret0, _ := ret[0].([]*entity.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindAll indicates an expected call of FindAll
+func (mr *MockPostMockRecorder) FindAll() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockPost)(nil).FindAll))
+}
+
 // FindByPermalink mocks base method
 func (m *MockPost) FindByPermalink(permalink string) (*entity.Post, error) {
 	m.ctrl.T.Helper()

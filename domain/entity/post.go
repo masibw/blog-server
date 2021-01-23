@@ -2,6 +2,10 @@ package entity
 
 import (
 	"time"
+	"unsafe"
+
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday/v2"
 
 	"github.com/masibw/blog-server/util"
 
@@ -45,4 +49,12 @@ func (p *Post) ConvertToDTO() *dto.PostDTO {
 		CreatedAt:    p.CreatedAt,
 		PublishedAt:  p.PublishedAt,
 	}
+}
+
+func (p *Post) ConvertContentToHTML() {
+	bytesContent := *(*[]byte)(unsafe.Pointer(&p.Content))
+	unsafeHTML := blackfriday.Run(bytesContent)
+	sanitizedHTML := bluemonday.UGCPolicy().SanitizeBytes(unsafeHTML)
+	content := *(*string)(unsafe.Pointer(&sanitizedHTML))
+	p.Content = content
 }
