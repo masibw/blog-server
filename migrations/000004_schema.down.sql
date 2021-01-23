@@ -1,0 +1,1 @@
+ALTER TABLE posts DROP published_at;

@@ -45,6 +45,7 @@ func TestPostRepository_Store(t *testing.T) {
 				IsDraft:      false,
 				CreatedAt:    time.Time{},
 				UpdatedAt:    time.Time{},
+				PublishedAt:  time.Time{},
 			},
 			wantErr: nil,
 		},
@@ -59,6 +60,7 @@ func TestPostRepository_Store(t *testing.T) {
 				IsDraft:      false,
 				CreatedAt:    time.Time{},
 				UpdatedAt:    time.Time{},
+				PublishedAt:  time.Time{},
 			},
 			wantErr: entity.ErrPostAlreadyExisted,
 		},
@@ -90,6 +92,7 @@ func TestPostRepository_FindByPermalink(t *testing.T) {
 		IsDraft:      false,
 		CreatedAt:    flextime.Now(),
 		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
 	}).Error; err != nil {
 		t.Fatal(err)
 	}
@@ -112,6 +115,7 @@ func TestPostRepository_FindByPermalink(t *testing.T) {
 				IsDraft:      false,
 				CreatedAt:    flextime.Now(),
 				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
 			},
 			wantErr: nil,
 		},

@@ -42,6 +42,21 @@ func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 			wantErr: nil,
 		},
 		{
+			name: "IsDraftがfalseであればPublishedAtが登録されていること",
+			postDTO: &dto.PostDTO{
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := false; return &b }(),
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().Store(gomock.Any()).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
 			name: "パーマリンクが登録済みの場合ErrPermalinkAlreadyExistedエラーを返す",
 			postDTO: &dto.PostDTO{
 				Title:        "new_post",
@@ -103,6 +118,10 @@ func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 
 			if *got.IsDraft != *tt.postDTO.IsDraft {
 				t.Errorf("StorePost() IsDraft does not match got: %v, want: %v", got, tt.postDTO)
+			}
+
+			if !*tt.postDTO.IsDraft && got.PublishedAt.IsZero() {
+				t.Errorf("StorePost() PublishedAt does not set got: %v, want: %v", got.PublishedAt, flextime.Now())
 			}
 
 		})
