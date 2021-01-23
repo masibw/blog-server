@@ -23,7 +23,7 @@ down-test-db:
 .PHONY: test
 
 test:
-	$(ENV_TEST) go test -v ./... -count=1
+	$(ENV_TEST) richgo test -v ./... -count=1
 
 
 .PHONY: deploy

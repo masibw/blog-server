@@ -24,5 +24,7 @@ jobs:
         run: make up-test-db
       - name: Wait for db connection
         run: sleep 10
+      - name: Install richgo
+        run: go get -u github.com/kyoh86/richgo
       - name: Test
         run: make test
