@@ -7,6 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/masibw/blog-server/config"
+
+	_ "github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/golang-migrate/migrate/v4/source/github"
+
 	"github.com/Songmu/flextime"
 
 	"github.com/masibw/blog-server/domain/entity"
@@ -18,6 +25,17 @@ var db *gorm.DB
 
 func TestMain(m *testing.M) {
 	var err error
+	var mig *migrate.Migrate
+	mig, err = migrate.New("file://"+os.Getenv("MIGRATION_FILE"), "mysql://"+config.PureDSN())
+	if err != nil {
+		panic(err)
+	}
+	if err := mig.Up(); err != nil {
+		if !errors.Is(err, migrate.ErrNoChange) {
+			panic(err)
+		}
+	}
+
 	db = NewTestDB()
 	if err != nil {
 		panic(err)

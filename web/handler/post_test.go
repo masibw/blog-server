@@ -2,7 +2,6 @@ package handler
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -82,7 +81,6 @@ func TestPostHandler_StorePost(t *testing.T) {
 				postUC: postUC,
 			}
 			p.StorePost(c)
-			fmt.Println(w)
 			if w.Code != tt.wantCode {
 				t.Errorf("StorePost() code = %d, want = %d", w.Code, tt.wantCode)
 			}
