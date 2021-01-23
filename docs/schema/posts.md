@@ -8,13 +8,14 @@
 ```sql
 CREATE TABLE `posts` (
   `id` char(26) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `thumbnail_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `permalink` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_draft` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `title` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `published_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `permalink` (`permalink`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -27,13 +28,14 @@ CREATE TABLE `posts` (
 | Name | Type | Default | Nullable | Extra Definition | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | --------------- | -------- | ------- | ------- |
 | id | char(26) |  | false |  | [tags](tags.md) |  |  |
+| title | varchar(64) |  | true |  |  |  |  |
 | thumbnail_url | text |  | false |  |  |  |  |
 | content | longtext |  | false |  |  |  |  |
 | permalink | varchar(256) |  | false |  |  |  |  |
 | is_draft | tinyint(1) | 0 | false |  |  |  |  |
 | created_at | datetime | CURRENT_TIMESTAMP | false | DEFAULT_GENERATED |  |  |  |
 | updated_at | datetime | CURRENT_TIMESTAMP | false | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |  |  |  |
-| title | varchar(64) |  | true |  |  |  |  |
+| published_at | datetime |  | true |  |  |  |  |
 
 ## Constraints
 

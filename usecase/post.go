@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/Songmu/flextime"
+
 	"github.com/masibw/blog-server/domain/dto"
 	"github.com/masibw/blog-server/domain/entity"
 	"github.com/masibw/blog-server/domain/repository"
@@ -35,6 +37,9 @@ func (p *PostUseCase) StorePost(postDTO *dto.PostDTO) (*dto.PostDTO, error) {
 		postDTO.Permalink,
 		*postDTO.IsDraft,
 	)
+	if !post.IsDraft {
+		post.PublishedAt = flextime.Now()
+	}
 	err = p.postRepository.Store(post)
 	if err != nil {
 		return nil, fmt.Errorf("store post title=%v: %w", postDTO.Title, err)

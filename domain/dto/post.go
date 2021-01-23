@@ -11,4 +11,5 @@ type PostDTO struct {
 	IsDraft      *bool  `json:"is_draft" binding:"required"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	PublishedAt  time.Time
 }

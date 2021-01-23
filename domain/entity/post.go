@@ -18,6 +18,7 @@ type Post struct {
 	IsDraft      bool
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	PublishedAt  time.Time
 }
 
 func NewPost(title string, thumbnailURL string, content string, permalink string, isDraft bool) *Post {
@@ -28,6 +29,7 @@ func NewPost(title string, thumbnailURL string, content string, permalink string
 		Content:      content,
 		Permalink:    permalink,
 		IsDraft:      isDraft,
+		PublishedAt:  time.Time{},
 	}
 }
 
@@ -41,5 +43,6 @@ func (p *Post) ConvertToDTO() *dto.PostDTO {
 		IsDraft:      &p.IsDraft,
 		UpdatedAt:    p.UpdatedAt,
 		CreatedAt:    p.CreatedAt,
+		PublishedAt:  p.PublishedAt,
 	}
 }
