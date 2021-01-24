@@ -17,13 +17,26 @@ func NewPostRepository(db *gorm.DB) *PostRepository {
 	return &PostRepository{db: db}
 }
 
+func (r *PostRepository) FindByID(id string) (*entity.Post, error) {
+	post := &entity.Post{}
+	if err := r.db.Where("id = ?", id).First(&post).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = fmt.Errorf("find post: %w", entity.ErrPostNotFound)
+			return nil, err
+		}
+		err = fmt.Errorf("find post: %w", err)
+		return nil, err
+	}
+	return post, nil
+}
+
 func (r *PostRepository) FindByPermalink(permalink string) (*entity.Post, error) {
 	post := &entity.Post{}
 	if err := r.db.Where("permalink = ?", permalink).First(post).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("select user: %w", entity.ErrPostNotFound)
+			return nil, fmt.Errorf("find post: %w", entity.ErrPostNotFound)
 		}
-		return nil, fmt.Errorf("select user: %w", err)
+		return nil, fmt.Errorf("find post: %w", err)
 	}
 	return post, nil
 }

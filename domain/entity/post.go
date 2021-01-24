@@ -14,7 +14,7 @@ import (
 )
 
 type Post struct {
-	ID           string
+	ID           string `gorm:"PRIMARY_KEY"`
 	Title        string
 	ThumbnailURL string
 	Content      string

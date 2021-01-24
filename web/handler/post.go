@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+
+	"github.com/masibw/blog-server/domain/entity"
 
 	"github.com/masibw/blog-server/domain/dto"
 
@@ -52,5 +55,25 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"posts": posts,
+	})
+}
+
+func (p *PostHandler) GetPost(c *gin.Context) {
+	logger := log.GetLogger()
+	id := c.Param("id")
+	post, err := p.postUC.GetPost(id)
+	if err != nil {
+		if errors.Is(err, entity.ErrPostNotFound) {
+			logger.Debug("get post not found", err)
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound})
+			return
+		}
+		logger.Errorf("get post", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"post": post,
 	})
 }

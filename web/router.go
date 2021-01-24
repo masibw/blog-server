@@ -25,6 +25,6 @@ func NewServer(postUC *usecase.PostUseCase) (e *gin.Engine) {
 	posts := v1.Group("/posts")
 	posts.GET("", postHandler.GetPosts)
 	posts.POST("", postHandler.StorePost)
-
+	posts.GET(":id", postHandler.GetPost)
 	return
 }

@@ -65,3 +65,15 @@ func (p *PostUseCase) GetPosts() (postDTOs []*dto.PostDTO, err error) {
 
 	return
 }
+
+func (p *PostUseCase) GetPost(id string) (postDTO *dto.PostDTO, err error) {
+	var post *entity.Post
+	post, err = p.postRepository.FindByID(id)
+	if err != nil {
+		err = fmt.Errorf("get post: %w", err)
+		return
+	}
+	post.ConvertContentToHTML()
+	postDTO = post.ConvertToDTO()
+	return
+}

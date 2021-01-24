@@ -234,3 +234,84 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 		})
 	}
 }
+
+func TestPostUseCase_GetPost(t *testing.T) {
+
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	existsPost := &entity.Post{
+		ID:           "abcdefghijklmnopqrstuvwxyz",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}
+
+	tests := []struct {
+		name                  string
+		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
+		ID                    string
+		want                  *dto.PostDTO
+		wantErr               bool
+	}{
+		{
+			name: "postDTOを返すこと",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(existsPost, nil)
+			},
+			want: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "<p>new_content</p>\n",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := false; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			},
+			ID:      "abcdefghijklmnopqrstuvwxyz",
+			wantErr: false,
+		},
+		{
+			name: "FindByIDがエラーを返した時はpostDTOが空であること",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID("not_found").Return(nil, entity.ErrPostNotFound)
+			},
+			ID:      "not_found",
+			want:    nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mr := mock_repository.NewMockPost(ctrl)
+			tt.prepareMockPostRepoFn(mr)
+			p := &PostUseCase{
+				postRepository: mr,
+			}
+
+			got, err := p.GetPost(tt.ID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetPost() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("GetPost() mismatch (-want +got):\n%s", cmp.Diff(tt.want, got))
+			}
+		})
+	}
+}
