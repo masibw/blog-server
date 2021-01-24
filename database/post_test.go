@@ -244,53 +244,62 @@ func TestPostRepository_FindAll(t *testing.T) {
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
 	defer flextime.Restore()
 
-	existsPosts := []*entity.Post{{
-		ID:           "abcdefghijklmnopqrstuvwxyz",
-		Title:        "new_post",
-		ThumbnailURL: "new_thumbnail_url",
-		Content:      "new_content",
-		Permalink:    "new_permalink",
-		IsDraft:      false,
-		CreatedAt:    flextime.Now(),
-		UpdatedAt:    flextime.Now(),
-		PublishedAt:  flextime.Now(),
-	}, {
-		ID:           "abcdefghijklmnopqrstuvwxy2",
-		Title:        "new_post",
-		ThumbnailURL: "new_thumbnail_url",
-		Content:      "new_content",
-		Permalink:    "new_permalink2",
-		IsDraft:      false,
-		CreatedAt:    flextime.Now(),
-		UpdatedAt:    flextime.Now(),
-		PublishedAt:  flextime.Now(),
-	}}
-
-	if err := tx.Create(existsPosts).Error; err != nil {
-		t.Fatal(err)
-	}
-
 	tests := []struct {
-		name    string
-		wantErr error
+		name       string
+		existPosts []*entity.Post
+		wantErr    error
 	}{
 		{
-			name:    "存在する投稿を正常に全件取得できる",
+			name: "存在する投稿を正常に全件取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy2",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
 			wantErr: nil,
+		},
+		{
+			name:       "投稿が存在しない場合はErrPostNotFoundを返す",
+			existPosts: nil,
+			wantErr:    entity.ErrPostNotFound,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tx2 := tx.Begin()
+			if tt.existPosts != nil {
+				if err := tx.Create(tt.existPosts).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
 			r := &PostRepository{db: tx}
 			got, err := r.FindAll()
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("FindAll()  error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			if len(got) != len(existsPosts) {
-				t.Errorf("FindAll() does not fetch all posts got = %v, want = %v", got, existsPosts)
+			if len(got) != len(tt.existPosts) {
+				t.Errorf("FindAll() does not fetch all posts got = %v, want = %v", got, tt.existPosts)
 			}
+			tx2.Rollback()
 		})
 	}
 
