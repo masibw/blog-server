@@ -60,3 +60,14 @@ func (r *PostRepository) FindAll() (posts []*entity.Post, err error) {
 	}
 	return
 }
+
+func (r *PostRepository) Delete(id string) error {
+	result := r.db.Where("id = ?", id).Delete(&entity.Post{})
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("delete post: %w", entity.ErrPostNotFound)
+	}
+	if err := result.Error; err != nil {
+		return fmt.Errorf("delete post: %w", err)
+	}
+	return nil
+}

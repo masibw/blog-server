@@ -77,3 +77,12 @@ func (p *PostUseCase) GetPost(id string) (postDTO *dto.PostDTO, err error) {
 	postDTO = post.ConvertToDTO()
 	return
 }
+
+func (p *PostUseCase) DeletePost(id string) (err error) {
+	err = p.postRepository.Delete(id)
+	if err != nil {
+		err = fmt.Errorf("delete post: %w", err)
+		return
+	}
+	return nil
+}

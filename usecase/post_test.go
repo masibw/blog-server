@@ -315,3 +315,55 @@ func TestPostUseCase_GetPost(t *testing.T) {
 		})
 	}
 }
+
+func TestPostUseCase_DeletePost(t *testing.T) {
+
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	tests := []struct {
+		name                  string
+		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
+		ID                    string
+		wantErr               bool
+	}{
+		{
+			name: "削除に成功した場合はエラーを返さないこと",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().Delete(gomock.Any()).Return(nil)
+			},
+			ID:      "abcdefghijklmnopqrstuvwxyz",
+			wantErr: false,
+		},
+		{
+			name: "Deleteがエラーを返した時はエラーを返すこと",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().Delete("not_found").Return(entity.ErrPostNotFound)
+			},
+			ID:      "not_found",
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mr := mock_repository.NewMockPost(ctrl)
+			tt.prepareMockPostRepoFn(mr)
+			p := &PostUseCase{
+				postRepository: mr,
+			}
+
+			err := p.DeletePost(tt.ID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetPost() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

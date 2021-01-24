@@ -26,5 +26,6 @@ func NewServer(postUC *usecase.PostUseCase) (e *gin.Engine) {
 	posts.GET("", postHandler.GetPosts)
 	posts.POST("", postHandler.StorePost)
 	posts.GET(":id", postHandler.GetPost)
+	posts.DELETE(":id", postHandler.DeletePost)
 	return
 }
