@@ -136,11 +136,11 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			wantCode: http.StatusOK,
 		},
 		{
-			name: "投稿が0件でもエラーにならない",
+			name: "投稿が0件の時はhttp.StatusNotFoundを返す",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll().Return(existsPosts, nil)
+				mock.EXPECT().FindAll().Return(nil, entity.ErrPostNotFound)
 			},
-			wantCode: http.StatusOK,
+			wantCode: http.StatusNotFound,
 		},
 		{
 			name: "投稿の取得に失敗した場合はStatusInternalServerErrorエラーが返る",

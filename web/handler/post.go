@@ -48,6 +48,11 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 
 	posts, err := p.postUC.GetPosts()
 	if err != nil {
+		if errors.Is(err, entity.ErrPostNotFound) {
+			logger.Debug("get posts not found", err)
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound})
+			return
+		}
 		logger.Errorf("get posts", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
