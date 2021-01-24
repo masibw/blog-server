@@ -82,3 +82,23 @@ func (p *PostHandler) GetPost(c *gin.Context) {
 		"post": post,
 	})
 }
+
+func (p *PostHandler) DeletePost(c *gin.Context) {
+	logger := log.GetLogger()
+	id := c.Param("id")
+	err := p.postUC.DeletePost(id)
+	if err != nil {
+		if errors.Is(err, entity.ErrPostNotFound) {
+			logger.Debug("delete post not found", err)
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound})
+			return
+		}
+		logger.Errorf("delete post", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "successfully deleted",
+	})
+}

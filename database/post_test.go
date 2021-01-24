@@ -305,3 +305,70 @@ func TestPostRepository_FindAll(t *testing.T) {
 
 	tx.Rollback()
 }
+
+func TestPostRepository_Delete(t *testing.T) {
+	tx := db.Begin()
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	tests := []struct {
+		name      string
+		ID        string
+		existPost *entity.Post
+		want      *entity.Post
+		wantErr   error
+	}{
+		{
+			name: "存在する投稿を正常に削除できる",
+			ID:   "abcdefghijklmnopqrstuvwxyz",
+			existPost: &entity.Post{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:      "存在しないIDの場合ErrPostNotFoundを返す",
+			ID:        "not_found",
+			existPost: nil,
+			want:      nil,
+			wantErr:   entity.ErrPostNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tx2 := tx.Begin()
+
+			if tt.existPost != nil {
+				if err := tx.Create(tt.existPost).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			r := &PostRepository{db: tx}
+			err := r.Delete(tt.ID)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			//TODO 削除したことを確かめるテスト
+
+			tx2.Rollback()
+		})
+	}
+
+	tx.Rollback()
+}
