@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/masibw/blog-server/domain/entity"
 
@@ -46,7 +47,23 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 func (p *PostHandler) GetPosts(c *gin.Context) {
 	logger := log.GetLogger()
 
-	posts, err := p.postUC.GetPosts()
+	// ページネーションの設定 デフォルトは page=1, pageSize=10
+	page, err := strconv.Atoi(c.Query("page"))
+	if err != nil {
+		logger.Debug("get posts", err)
+	}
+	if page == 0 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(c.Query("pageSize"))
+	if err != nil {
+		logger.Debug("get posts", err)
+	}
+
+	offset := (page - 1) * pageSize
+
+	posts, err := p.postUC.GetPosts(offset, pageSize)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get posts not found", err)
