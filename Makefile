@@ -11,13 +11,13 @@ down:
 
 .PHONY: logs
 logs:
-	docker-compose -f docker-compose.local.yml logs --tail=20
+	docker-compose -f docker-compose.local.yml logs ${T}
 
-.PHONY: up-test-db
+.PHONY: up-test
 up-test-db:
 	docker run --rm --env-file=$(ENV_TEST_FILE) -v $(PWD)/build/db/my.cnf:/etc/mysql/conf.d/my.cnf  --name blog-server_test_db_1 -d -p 3306:3306 mysql:8.0
 
-.PHONY: down-test-db
+.PHONY: down-test
 down-test-db:
 	docker stop blog-server_test_db_1
 
