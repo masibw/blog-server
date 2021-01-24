@@ -3,6 +3,7 @@ package entity
 import "errors"
 
 // エラーの分岐でMYSQLのエラーコードを用いている https://dev.mysql.com/doc/refman/5.6/ja/error-messages-server.html
+// エラー: 1062 SQLSTATE: 23000 (ER_DUP_ENTRY)
 
 var (
 	// ErrUserNotFound はユーザが存在しないエラーを表します。

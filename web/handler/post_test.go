@@ -178,3 +178,84 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		})
 	}
 }
+
+func TestPostHandler_GetPost(t *testing.T) {
+
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	existsPost := &entity.Post{
+		ID:           "abcdefghijklmnopqrstuvwxyz",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}
+
+	tests := []struct {
+		name                  string
+		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
+		ID                    string
+		wantCode              int
+	}{
+		{
+			name: "正常に投稿を取得できる",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(existsPost, nil)
+			},
+			ID:       "abcdefghijklmnopqrstuvwxyz",
+			wantCode: http.StatusOK,
+		},
+		{
+			name: "投稿がない場合はStatusNotFoundを返す",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+			},
+			ID:       "not_found",
+			wantCode: http.StatusNotFound,
+		},
+		{
+			name: "投稿の取得に失敗した場合はStatusInternalServerErrorエラーが返る",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(nil, errors.New("dummy error"))
+			},
+			ID:       "not_found",
+			wantCode: http.StatusInternalServerError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// Repositoryのモック
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mr := mock_repository.NewMockPost(ctrl)
+			tt.prepareMockPostRepoFn(mr)
+			postUC := usecase.NewPostUseCase(mr)
+
+			// HTTPRequestをテストするために必要な部分
+			w := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(w)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/posts/"+tt.ID, nil)
+			req.Header.Set("Content-Type", "application/json")
+			c.Request = req
+
+			p := &PostHandler{
+				postUC: postUC,
+			}
+			p.GetPost(c)
+			if w.Code != tt.wantCode {
+				t.Errorf("GetPost() code = %d, want = %d", w.Code, tt.wantCode)
+			}
+
+		})
+	}
+}

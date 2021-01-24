@@ -45,6 +45,75 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+func TestPostRepository_FindByID(t *testing.T) {
+	tx := db.Begin()
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	if err := tx.Create(&entity.Post{
+		ID:           "abcdefghijklmnopqrstuvwxyz",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name    string
+		ID      string
+		want    *entity.Post
+		wantErr error
+	}{
+		{
+			name: "存在する投稿を正常に取得できる",
+			ID:   "abcdefghijklmnopqrstuvwxyz",
+			want: &entity.Post{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "存在しないIDの場合ErrPostNotFoundを返す",
+			ID:      "not_found",
+			want:    nil,
+			wantErr: entity.ErrPostNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &PostRepository{db: tx}
+			got, err := r.FindByID(tt.ID)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("FindByID() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("FindByID() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+
+	tx.Rollback()
+}
+
 func TestPostRepository_Store(t *testing.T) {
 	tx := db.Begin()
 
