@@ -126,28 +126,45 @@ func TestPostHandler_GetPosts(t *testing.T) {
 	tests := []struct {
 		name                  string
 		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
+		page                  string
+		pageSize              string
 		wantCode              int
 	}{
 		{
 			name: "正常に投稿を取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll().Return(existsPosts, nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsPosts, nil)
 			},
+			page:     "",
+			pageSize: "",
 			wantCode: http.StatusOK,
 		},
 		{
 			name: "投稿が0件の時はhttp.StatusNotFoundを返す",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll().Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(nil, entity.ErrPostNotFound)
 			},
+			page:     "",
+			pageSize: "",
 			wantCode: http.StatusNotFound,
 		},
 		{
 			name: "投稿の取得に失敗した場合はStatusInternalServerErrorエラーが返る",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll().Return(nil, errors.New("dummy error"))
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
 			},
+			page:     "",
+			pageSize: "",
 			wantCode: http.StatusInternalServerError,
+		},
+		{
+			name: "ページングを指定した時も正しく取得できる",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+			},
+			page:     "2",
+			pageSize: "1",
+			wantCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {

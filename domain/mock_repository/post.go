@@ -49,18 +49,18 @@ func (mr *MockPostMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method
-func (m *MockPost) FindAll() ([]*entity.Post, error) {
+func (m *MockPost) FindAll(offset, pageSize int) ([]*entity.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAll")
+	ret := m.ctrl.Call(m, "FindAll", offset, pageSize)
 	ret0, _ := ret[0].([]*entity.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindAll indicates an expected call of FindAll
-func (mr *MockPostMockRecorder) FindAll() *gomock.Call {
+func (mr *MockPostMockRecorder) FindAll(offset, pageSize interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockPost)(nil).FindAll))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockPost)(nil).FindAll), offset, pageSize)
 }
 
 // FindByPermalink mocks base method

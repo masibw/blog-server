@@ -51,12 +51,15 @@ func (r *PostRepository) Store(post *entity.Post) error {
 	return nil
 }
 
-func (r *PostRepository) FindAll() (posts []*entity.Post, err error) {
-	if err = r.db.Find(&posts).Error; err != nil {
+func (r *PostRepository) FindAll(offset, pageSize int) (posts []*entity.Post, err error) {
+	if err = r.db.Debug().Offset(offset).Limit(pageSize).Find(&posts).Error; err != nil {
 		err = fmt.Errorf("find all posts: %w", err)
 	}
 	if len(posts) == 0 {
 		err = fmt.Errorf("find all posts: %w", entity.ErrPostNotFound)
+	}
+	for _, v := range posts {
+		fmt.Println(v)
 	}
 	return
 }

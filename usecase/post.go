@@ -47,9 +47,9 @@ func (p *PostUseCase) StorePost(postDTO *dto.PostDTO) (*dto.PostDTO, error) {
 	return post.ConvertToDTO(), nil
 }
 
-func (p *PostUseCase) GetPosts() (postDTOs []*dto.PostDTO, err error) {
+func (p *PostUseCase) GetPosts(offset, pageSize int) (postDTOs []*dto.PostDTO, err error) {
 	var posts []*entity.Post
-	posts, err = p.postRepository.FindAll()
+	posts, err = p.postRepository.FindAll(offset, pageSize)
 	if err != nil {
 		err = fmt.Errorf("get posts: %w", err)
 		return
