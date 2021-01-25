@@ -35,6 +35,11 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 	}
 	post, err := p.postUC.StorePost(postDTO)
 	if err != nil {
+		if errors.Is(err, entity.ErrPermalinkAlreadyExisted) {
+			logger.Debugf("store post already existed", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrPermalinkAlreadyExisted})
+			return
+		}
 		logger.Errorf("store post", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
 		return

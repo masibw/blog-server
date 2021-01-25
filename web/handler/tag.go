@@ -34,6 +34,11 @@ func (p *TagHandler) StoreTag(c *gin.Context) {
 	}
 	tag, err := p.tagUC.StoreTag(tagDTO)
 	if err != nil {
+		if errors.Is(err, entity.ErrTagNameAlreadyExisted) {
+			logger.Debugf("store tag already tag name existed :%w", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrTagAlreadyExisted})
+			return
+		}
 		logger.Errorf("store tag", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
 		return
