@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/masibw/blog-server/domain/entity"
 
@@ -47,23 +48,47 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 func (p *PostHandler) GetPosts(c *gin.Context) {
 	logger := log.GetLogger()
 
-	// ページネーションの設定 デフォルトは page=1, pageSize=10
-	page, err := strconv.Atoi(c.Query("page"))
-	if err != nil {
-		logger.Debug("get posts", err)
-	}
-	if page == 0 {
-		page = 1
+	conditions := make([]string, 0)
+	params := make([]interface{}, 0)
+	var offset int
+	var pageSize int
+	var err error
+
+	// ページネーションの設定
+	if c.Query("page") != "" && c.Query("page_size") != "" {
+		var page int
+		page, err = strconv.Atoi(c.Query("page"))
+		if err != nil {
+			logger.Errorf("page invalid, %v : %v", c.Query("page"), err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		pageSize, err = strconv.Atoi(c.Query("page_size"))
+		if err != nil {
+			logger.Errorf("page_size invalid, %v : %v", c.Query("page_size"), err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if page == 0 {
+			page = 1
+		}
+
+		offset = (page - 1) * pageSize
 	}
 
-	pageSize, err := strconv.Atoi(c.Query("pageSize"))
-	if err != nil {
-		logger.Debug("get posts", err)
+	if c.Query("is_draft") != "" {
+		isDraft, err := strconv.ParseBool(c.Query("is_draft"))
+		if err != nil {
+			logger.Errorf("is_draft invalid, %v : %v", c.Query("is_draft"), err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		conditions = append(conditions, " is_draft = ? ")
+		params = append(params, isDraft)
 	}
-
-	offset := (page - 1) * pageSize
-
-	posts, err := p.postUC.GetPosts(offset, pageSize)
+	condition := strings.Join(conditions, "")
+	posts, err := p.postUC.GetPosts(offset, pageSize, condition, params)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get posts not found", err)
@@ -71,7 +96,7 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 			return
 		}
 		logger.Errorf("get posts", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
 		return
 	}
 

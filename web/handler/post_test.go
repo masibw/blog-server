@@ -126,45 +126,118 @@ func TestPostHandler_GetPosts(t *testing.T) {
 	tests := []struct {
 		name                  string
 		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
-		page                  string
-		pageSize              string
-		wantCode              int
+		params                []struct {
+			name  string
+			value string
+		}
+		isDraft  string
+		wantCode int
 	}{
 		{
 			name: "正常に投稿を取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsPosts, nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts, nil)
 			},
-			page:     "",
-			pageSize: "",
+			params:   nil,
 			wantCode: http.StatusOK,
 		},
 		{
 			name: "投稿が0件の時はhttp.StatusNotFoundを返す",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, entity.ErrPostNotFound)
 			},
-			page:     "",
-			pageSize: "",
+			params:   nil,
 			wantCode: http.StatusNotFound,
 		},
 		{
 			name: "投稿の取得に失敗した場合はStatusInternalServerErrorエラーが返る",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
 			},
-			page:     "",
-			pageSize: "",
+			params:   nil,
 			wantCode: http.StatusInternalServerError,
 		},
 		{
 			name: "ページングを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
 			},
-			page:     "2",
-			pageSize: "1",
+			params: []struct {
+				name  string
+				value string
+			}{
+				{
+					"page",
+					"2",
+				}, {
+					"page_size",
+					"1",
+				},
+			},
 			wantCode: http.StatusOK,
+		}, {
+			name: "is_draftを指定した時も正しく取得できる",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+			},
+			params: []struct {
+				name  string
+				value string
+			}{
+				{
+					"page",
+					"0",
+				}, {
+					"page_size",
+					"0",
+				}, {
+					"is_draft",
+					"true",
+				},
+			},
+			wantCode: http.StatusOK,
+		},
+		{
+			name: "is_draftにboolに変換できない値が入っていた場合はStatusBadRequestを返す",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+			},
+			params: []struct {
+				name  string
+				value string
+			}{
+				{
+					"page",
+					"0",
+				}, {
+					"page_size",
+					"0",
+				}, {
+					"is_draft",
+					"can't_parse",
+				},
+			},
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			name: "pageにintに変換できない値が入っていた場合はStatusBadRequestを返す",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+			},
+			params: []struct {
+				name  string
+				value string
+			}{
+				{
+					"page",
+					"can't_parse",
+				}, {
+					"page_size",
+					"0",
+				}, {
+					"is_draft",
+					"false",
+				},
+			},
+			wantCode: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
@@ -180,7 +253,16 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			// HTTPRequestをテストするために必要な部分
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
-			req, _ := http.NewRequest(http.MethodGet, "/api/v1/posts", nil)
+
+			var queryParam string
+			for _, v := range tt.params {
+				queryParam += "&" + v.name + "=" + v.value
+			}
+			if queryParam != "" {
+				queryParam = "?" + queryParam[1:]
+			}
+
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/posts"+queryParam, nil)
 			req.Header.Set("Content-Type", "application/json")
 			c.Request = req
 
