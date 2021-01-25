@@ -34,10 +34,10 @@ func TestPostHandler_StorePost(t *testing.T) {
 			},
 			body: `{
 				"title" : "new_post",
-				"thumbnail_url" : "new_thumbnail_url",
+				"thumbnailUrl" : "new_thumbnail_url",
 				"content" : "new_content",
 				"permalink" : "new_permalink",
-				"is_draft" : false
+				"isDraft" : false
 			}`,
 			wantCode: http.StatusCreated,
 		},
@@ -55,10 +55,10 @@ func TestPostHandler_StorePost(t *testing.T) {
 			},
 			body: `{
 				"title" : "new_post",
-				"thumbnail_url" : "new_thumbnail_url",
+				"thumbnailUrl" : "new_thumbnail_url",
 				"content" : "new_content",
 				"permalink" : "new_permalink",
-				"is_draft" : false
+				"isDraft" : false
 			}`,
 			wantCode: http.StatusInternalServerError,
 		},
@@ -170,13 +170,13 @@ func TestPostHandler_GetPosts(t *testing.T) {
 					"page",
 					"2",
 				}, {
-					"page_size",
+					"page-size",
 					"1",
 				},
 			},
 			wantCode: http.StatusOK,
 		}, {
-			name: "is_draftを指定した時も正しく取得できる",
+			name: "is-draftを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
 			},
@@ -188,17 +188,17 @@ func TestPostHandler_GetPosts(t *testing.T) {
 					"page",
 					"0",
 				}, {
-					"page_size",
+					"page-size",
 					"0",
 				}, {
-					"is_draft",
+					"is-draft",
 					"true",
 				},
 			},
 			wantCode: http.StatusOK,
 		},
 		{
-			name: "is_draftにboolに変換できない値が入っていた場合はStatusBadRequestを返す",
+			name: "is-draftにboolに変換できない値が入っていた場合はStatusBadRequestを返す",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 			},
 			params: []struct {
@@ -209,10 +209,10 @@ func TestPostHandler_GetPosts(t *testing.T) {
 					"page",
 					"0",
 				}, {
-					"page_size",
+					"page-size",
 					"0",
 				}, {
-					"is_draft",
+					"is-draft",
 					"can't_parse",
 				},
 			},
@@ -230,10 +230,10 @@ func TestPostHandler_GetPosts(t *testing.T) {
 					"page",
 					"can't_parse",
 				}, {
-					"page_size",
+					"page-size",
 					"0",
 				}, {
-					"is_draft",
+					"is-draft",
 					"false",
 				},
 			},

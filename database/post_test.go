@@ -383,7 +383,7 @@ func TestPostRepository_FindAll(t *testing.T) {
 			}},
 			wantErr: nil,
 		}, {
-			name: "is_draftパラメータを適用して取得できる",
+			name: "is-draftパラメータを適用して取得できる",
 			existPosts: []*entity.Post{{
 				ID:           "abcdefghijklmnopqrstuvwxy1",
 				Title:        "new_post",

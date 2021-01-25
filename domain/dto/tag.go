@@ -3,8 +3,8 @@ package dto
 import "time"
 
 type TagDTO struct {
-	ID        string
-	Name      string `json:"name" binding:"required"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `json:"id"`
+	Name      string    `json:"name" binding:"required"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

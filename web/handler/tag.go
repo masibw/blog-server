@@ -51,7 +51,7 @@ func (p *TagHandler) GetTags(c *gin.Context) {
 	var err error
 
 	// ページネーションの設定
-	if c.Query("page") != "" && c.Query("page_size") != "" {
+	if c.Query("page") != "" && c.Query("page-size") != "" {
 		var page int
 		page, err = strconv.Atoi(c.Query("page"))
 		if err != nil {
@@ -59,9 +59,9 @@ func (p *TagHandler) GetTags(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		pageSize, err = strconv.Atoi(c.Query("page_size"))
+		pageSize, err = strconv.Atoi(c.Query("page-size"))
 		if err != nil {
-			logger.Errorf("page_size invalid, %v : %v", c.Query("page_size"), err)
+			logger.Errorf("page-size invalid, %v : %v", c.Query("page-size"), err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
