@@ -1,0 +1,2 @@
+ALTER TABLE tags DROP FOREIGN KEY tags_ibfk_1;
+ALTER TABLE tags DROP post_id;

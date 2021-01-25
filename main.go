@@ -44,7 +44,10 @@ func main() {
 	postRepository := database.NewPostRepository(db)
 	postUC := usecase.NewPostUseCase(postRepository)
 
-	e := web.NewServer(postUC)
+	tagRepository := database.NewTagRepository(db)
+	tagUC := usecase.NewTagUseCase(tagRepository)
+
+	e := web.NewServer(postUC, tagUC)
 
 	if err := e.Run(":8080"); err != nil {
 		if err != nil {
