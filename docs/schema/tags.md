@@ -8,14 +8,11 @@
 ```sql
 CREATE TABLE `tags` (
   `id` char(26) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `post_id` char(26) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `post_id` (`post_id`),
-  CONSTRAINT `tags_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ```
 
@@ -26,7 +23,6 @@ CREATE TABLE `tags` (
 | Name | Type | Default | Nullable | Extra Definition | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | --------------- | -------- | ------- | ------- |
 | id | char(26) |  | false |  |  |  |  |
-| post_id | char(26) |  | false |  |  | [posts](posts.md) |  |
 | name | varchar(64) |  | false |  |  |  |  |
 | created_at | datetime | CURRENT_TIMESTAMP | false | DEFAULT_GENERATED |  |  |  |
 | updated_at | datetime | CURRENT_TIMESTAMP | false | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |  |  |  |
@@ -37,13 +33,11 @@ CREATE TABLE `tags` (
 | ---- | ---- | ---------- |
 | name | UNIQUE | UNIQUE KEY name (name) |
 | PRIMARY | PRIMARY KEY | PRIMARY KEY (id) |
-| tags_ibfk_1 | FOREIGN KEY | FOREIGN KEY (post_id) REFERENCES posts (id) |
 
 ## Indexes
 
 | Name | Definition |
 | ---- | ---------- |
-| post_id | KEY post_id (post_id) USING BTREE |
 | PRIMARY | PRIMARY KEY (id) USING BTREE |
 | name | UNIQUE KEY name (name) USING BTREE |
 
