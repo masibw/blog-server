@@ -6,6 +6,7 @@ import "errors"
 // エラー: 1062 SQLSTATE: 23000 (ER_DUP_ENTRY)
 
 var (
+	ErrInternalServerError = errors.New("internal server error")
 	// ErrUserNotFound はユーザが存在しないエラーを表します。
 	ErrUserNotFound = errors.New("user not found")
 	// ErrUserAlreadyExisted はユーザが既に存在しているエラーを表します。

@@ -249,6 +249,8 @@ func TestPostRepository_FindAll(t *testing.T) {
 		existPosts []*entity.Post
 		offset     int
 		pageSize   int
+		condition  string
+		params     []interface{}
 		want       []*entity.Post
 		wantErr    error
 	}{
@@ -285,8 +287,10 @@ func TestPostRepository_FindAll(t *testing.T) {
 				UpdatedAt:    flextime.Now(),
 				PublishedAt:  flextime.Now(),
 			}},
-			offset:   0,
-			pageSize: 0,
+			offset:    0,
+			pageSize:  0,
+			condition: "",
+			params:    []interface{}{},
 			want: []*entity.Post{{
 				ID:           "abcdefghijklmnopqrstuvwxy1",
 				Title:        "new_post",
@@ -352,8 +356,10 @@ func TestPostRepository_FindAll(t *testing.T) {
 				UpdatedAt:    flextime.Now(),
 				PublishedAt:  flextime.Now(),
 			}},
-			offset:   1,
-			pageSize: 2,
+			offset:    1,
+			pageSize:  2,
+			condition: "",
+			params:    []interface{}{},
 			want: []*entity.Post{{
 				ID:           "abcdefghijklmnopqrstuvwxy2",
 				Title:        "new_post",
@@ -376,7 +382,57 @@ func TestPostRepository_FindAll(t *testing.T) {
 				PublishedAt:  flextime.Now(),
 			}},
 			wantErr: nil,
+		}, {
+			name: "is_draftパラメータを適用して取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy1",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy2",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy3",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      true,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			offset:    0,
+			pageSize:  0,
+			condition: "is_draft = ?",
+			params:    []interface{}{true},
+			want: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy3",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      true,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			wantErr: nil,
 		},
+
 		{
 			name:       "投稿が存在しない場合はErrPostNotFoundを返す",
 			existPosts: nil,
@@ -394,7 +450,7 @@ func TestPostRepository_FindAll(t *testing.T) {
 			}
 
 			r := &PostRepository{db: tx}
-			got, err := r.FindAll(tt.offset, tt.pageSize)
+			got, err := r.FindAll(tt.offset, tt.pageSize, tt.condition, tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("FindAll()  error = %v, wantErr %v", err, tt.wantErr)
 			}
