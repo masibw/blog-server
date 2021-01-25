@@ -55,6 +55,16 @@ func TestTagHandler_StoreTag(t *testing.T) {
 			}`,
 			wantCode: http.StatusInternalServerError,
 		},
+		{
+			name: "既に同名のタグが存在した場合はStatusBadRequestエラーが返る",
+			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
+				mock.EXPECT().FindByName("new_tag").Return(&entity.Tag{}, nil)
+			},
+			body: `{
+				"name" : "new_tag"
+			}`,
+			wantCode: http.StatusBadRequest,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -51,7 +51,8 @@ func TestPostHandler_StorePost(t *testing.T) {
 		{
 			name: "保存に失敗した時はStatusInternalServerErrorエラーが返る",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByPermalink("new_permalink").Return(&entity.Post{}, nil)
+				mock.EXPECT().FindByPermalink("new_permalink").Return(nil, nil)
+				mock.EXPECT().Store(gomock.Any()).Return(errors.New("dummy error"))
 			},
 			body: `{
 				"title" : "new_post",
@@ -61,6 +62,20 @@ func TestPostHandler_StorePost(t *testing.T) {
 				"isDraft" : false
 			}`,
 			wantCode: http.StatusInternalServerError,
+		},
+		{
+			name: "保存に失敗した時はStatusBadRequestエラーが返る",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByPermalink("new_permalink").Return(&entity.Post{}, nil)
+			},
+			body: `{
+				"title" : "new_post",
+				"thumbnailUrl" : "new_thumbnail_url",
+				"content" : "new_content",
+				"permalink" : "new_permalink",
+				"isDraft" : false
+			}`,
+			wantCode: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
