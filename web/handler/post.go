@@ -37,11 +37,11 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrPermalinkAlreadyExisted) {
 			logger.Debugf("store post already existed", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrPermalinkAlreadyExisted})
+			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrPermalinkAlreadyExisted.Error()})
 			return
 		}
 		logger.Errorf("store post", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
@@ -97,11 +97,11 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get posts not found", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound})
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound.Error()})
 			return
 		}
 		logger.Errorf("get posts", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 
@@ -117,11 +117,11 @@ func (p *PostHandler) GetPost(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get post not found", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound})
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound.Error()})
 			return
 		}
 		logger.Errorf("get post", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 
@@ -137,11 +137,11 @@ func (p *PostHandler) DeletePost(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("delete post not found", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound})
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrPostNotFound.Error()})
 			return
 		}
 		logger.Errorf("delete post", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 

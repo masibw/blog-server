@@ -36,11 +36,11 @@ func (p *TagHandler) StoreTag(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrTagNameAlreadyExisted) {
 			logger.Debugf("store tag already tag name existed :%w", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrTagAlreadyExisted})
+			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrTagAlreadyExisted.Error()})
 			return
 		}
 		logger.Errorf("store tag", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
@@ -80,11 +80,11 @@ func (p *TagHandler) GetTags(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrTagNotFound) {
 			logger.Debug("get tags not found", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrTagNotFound})
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrTagNotFound.Error()})
 			return
 		}
 		logger.Errorf("get tags", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 
@@ -100,11 +100,11 @@ func (p *TagHandler) GetTag(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrTagNotFound) {
 			logger.Debug("get tag not found", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrTagNotFound})
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrTagNotFound.Error()})
 			return
 		}
 		logger.Errorf("get tag", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 
@@ -120,11 +120,11 @@ func (p *TagHandler) DeleteTag(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, entity.ErrTagNotFound) {
 			logger.Debug("delete tag not found", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrTagNotFound})
+			c.JSON(http.StatusNotFound, gin.H{"error": entity.ErrTagNotFound.Error()})
 			return
 		}
 		logger.Errorf("delete tag", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
 
