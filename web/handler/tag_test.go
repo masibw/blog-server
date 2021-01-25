@@ -153,7 +153,7 @@ func TestTagHandler_GetTags(t *testing.T) {
 					"page",
 					"2",
 				}, {
-					"page_size",
+					"page-size",
 					"1",
 				},
 			},
@@ -170,10 +170,10 @@ func TestTagHandler_GetTags(t *testing.T) {
 					"page",
 					"can't_parse",
 				}, {
-					"page_size",
+					"page-size",
 					"0",
 				}, {
-					"is_draft",
+					"is-draft",
 					"false",
 				},
 			},

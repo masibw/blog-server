@@ -55,7 +55,7 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 	var err error
 
 	// ページネーションの設定
-	if c.Query("page") != "" && c.Query("page_size") != "" {
+	if c.Query("page") != "" && c.Query("page-size") != "" {
 		var page int
 		page, err = strconv.Atoi(c.Query("page"))
 		if err != nil {
@@ -63,9 +63,9 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		pageSize, err = strconv.Atoi(c.Query("page_size"))
+		pageSize, err = strconv.Atoi(c.Query("page-size"))
 		if err != nil {
-			logger.Errorf("page_size invalid, %v : %v", c.Query("page_size"), err)
+			logger.Errorf("page-size invalid, %v : %v", c.Query("page-size"), err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -76,10 +76,10 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 		offset = (page - 1) * pageSize
 	}
 
-	if c.Query("is_draft") != "" {
-		isDraft, err := strconv.ParseBool(c.Query("is_draft"))
+	if c.Query("is-draft") != "" {
+		isDraft, err := strconv.ParseBool(c.Query("is-draft"))
 		if err != nil {
-			logger.Errorf("is_draft invalid, %v : %v", c.Query("is_draft"), err)
+			logger.Errorf("is-draft invalid, %v : %v", c.Query("is-draft"), err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
