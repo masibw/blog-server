@@ -36,7 +36,7 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 	post, err := p.postUC.StorePost(postDTO)
 	if err != nil {
 		logger.Errorf("store post", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
@@ -116,7 +116,7 @@ func (p *PostHandler) GetPost(c *gin.Context) {
 			return
 		}
 		logger.Errorf("get post", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
 		return
 	}
 
@@ -136,7 +136,7 @@ func (p *PostHandler) DeletePost(c *gin.Context) {
 			return
 		}
 		logger.Errorf("delete post", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError})
 		return
 	}
 
