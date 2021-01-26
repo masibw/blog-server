@@ -25,4 +25,11 @@ var (
 	ErrTagAlreadyExisted = errors.New("tag has already existed")
 	// ErrTagNameAlreadyExisted はその名前のタグが既に存在しているエラーを表します。
 	ErrTagNameAlreadyExisted = errors.New("tag name has already existed")
+
+	// ErrPostsTagsNotFound はタグが存在しないエラーを表します。
+	ErrPostsTagsNotFound = errors.New("posts_tags not found")
+	// ErrPostsTagsAlreadyExisted はタグが既に存在しているエラーを表します。
+	ErrPostsTagsAlreadyExisted = errors.New("posts_tags has already existed")
+	// ErrPostsTagsCombinationAlreadyExisted はその投稿に同じタグが既に存在しているエラーを表します。
+	ErrPostsTagsCombinationAlreadyExisted = errors.New("posts_tags combination has already existed")
 )
