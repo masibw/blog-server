@@ -27,7 +27,7 @@ CREATE TABLE `posts` (
 
 | Name | Type | Default | Nullable | Extra Definition | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | --------------- | -------- | ------- | ------- |
-| id | char(26) |  | false |  |  |  |  |
+| id | char(26) |  | false |  | [posts_tags](posts_tags.md) |  |  |
 | title | varchar(64) |  | true |  |  |  |  |
 | thumbnail_url | text |  | false |  |  |  |  |
 | content | longtext |  | false |  |  |  |  |

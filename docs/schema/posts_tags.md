@@ -1,4 +1,4 @@
-# tags
+# posts_tags
 
 ## Description
 
@@ -6,13 +6,17 @@
 <summary><strong>Table Definition</strong></summary>
 
 ```sql
-CREATE TABLE `tags` (
+CREATE TABLE `posts_tags` (
   `id` char(26) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_id` char(26) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tag_id` char(26) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `post_id` (`post_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `posts_tags_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
+  CONSTRAINT `posts_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ```
 
@@ -22,8 +26,9 @@ CREATE TABLE `tags` (
 
 | Name | Type | Default | Nullable | Extra Definition | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | --------------- | -------- | ------- | ------- |
-| id | char(26) |  | false |  | [posts_tags](posts_tags.md) |  |  |
-| name | varchar(64) |  | false |  |  |  |  |
+| id | char(26) |  | false |  |  |  |  |
+| post_id | char(26) |  | false |  |  | [posts](posts.md) |  |
+| tag_id | char(26) |  | false |  |  | [tags](tags.md) |  |
 | created_at | datetime | CURRENT_TIMESTAMP | false | DEFAULT_GENERATED |  |  |  |
 | updated_at | datetime | CURRENT_TIMESTAMP | false | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |  |  |  |
 
@@ -31,19 +36,22 @@ CREATE TABLE `tags` (
 
 | Name | Type | Definition |
 | ---- | ---- | ---------- |
-| name | UNIQUE | UNIQUE KEY name (name) |
+| post_id | UNIQUE | UNIQUE KEY post_id (post_id, tag_id) |
+| posts_tags_ibfk_1 | FOREIGN KEY | FOREIGN KEY (post_id) REFERENCES posts (id) |
+| posts_tags_ibfk_2 | FOREIGN KEY | FOREIGN KEY (tag_id) REFERENCES tags (id) |
 | PRIMARY | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes
 
 | Name | Definition |
 | ---- | ---------- |
+| tag_id | KEY tag_id (tag_id) USING BTREE |
 | PRIMARY | PRIMARY KEY (id) USING BTREE |
-| name | UNIQUE KEY name (name) USING BTREE |
+| post_id | UNIQUE KEY post_id (post_id, tag_id) USING BTREE |
 
 ## Relations
 
-![er](tags.svg)
+![er](posts_tags.svg)
 
 ---
 
