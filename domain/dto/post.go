@@ -1,6 +1,8 @@
 package dto
 
-import "time"
+import (
+	"time"
+)
 
 type PostDTO struct {
 	ID           string    `json:"id"`

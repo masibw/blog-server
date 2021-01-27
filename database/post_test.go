@@ -114,6 +114,56 @@ func TestPostRepository_FindByID(t *testing.T) {
 	tx.Rollback()
 }
 
+func TestPostRepository_Update(t *testing.T) {
+	tx := db.Begin()
+
+	if err := tx.Create(&entity.Post{
+		ID:           "abcdefghijklmnopqrstuvwxyz",
+		Title:        "new_post",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name    string
+		post    *entity.Post
+		wantErr error
+	}{
+		{
+			name: "投稿を正常に更新できる",
+			post: &entity.Post{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content2",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    time.Time{},
+				UpdatedAt:    time.Time{},
+				PublishedAt:  time.Time{},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &PostRepository{db: tx}
+			if err := r.Update(tt.post); !errors.Is(err, tt.wantErr) {
+				t.Errorf("Store() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+
+	tx.Rollback()
+}
 func TestPostRepository_Store(t *testing.T) {
 	tx := db.Begin()
 
