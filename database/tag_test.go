@@ -109,7 +109,7 @@ func TestTagRepository_Store(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &TagRepository{db: tx}
 			if err := r.Store(tt.tag); !errors.Is(err, tt.wantErr) {
-				t.Errorf("Store() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

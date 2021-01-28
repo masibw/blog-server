@@ -28,19 +28,9 @@ func NewPostHandler(postUC *usecase.PostUseCase) *PostHandler {
 // StorePost は POST /posts に対応するハンドラーです。
 func (p *PostHandler) StorePost(c *gin.Context) {
 	logger := log.GetLogger()
-	postDTO := &dto.PostDTO{}
-	if err := c.ShouldBindJSON(postDTO); err != nil {
-		logger.Errorf("failed to bind", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	post, err := p.postUC.StorePost(postDTO)
+
+	post, err := p.postUC.CreatePost()
 	if err != nil {
-		if errors.Is(err, entity.ErrPermalinkAlreadyExisted) {
-			logger.Debugf("store post already existed", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrPermalinkAlreadyExisted.Error()})
-			return
-		}
 		logger.Errorf("store post", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return

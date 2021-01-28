@@ -18,30 +18,15 @@ func NewPostUseCase(postRepository repository.Post) *PostUseCase {
 	return &PostUseCase{postRepository: postRepository}
 }
 
-func (p *PostUseCase) StorePost(postDTO *dto.PostDTO) (*dto.PostDTO, error) {
+func (p *PostUseCase) CreatePost() (*dto.PostDTO, error) {
 	var post *entity.Post
 	var err error
-	post, err = p.postRepository.FindByPermalink(postDTO.Permalink)
-	if err != nil && !errors.Is(err, entity.ErrPostNotFound) {
-		return nil, fmt.Errorf("store post title=%v: %w", postDTO.Title, err)
-	}
-	if post != nil {
-		return nil, fmt.Errorf("store post permalink=%v: %w", postDTO.Permalink, entity.ErrPermalinkAlreadyExisted)
-	}
 
-	post = entity.NewPost(
-		postDTO.Title,
-		postDTO.ThumbnailURL,
-		postDTO.Content,
-		postDTO.Permalink,
-		*postDTO.IsDraft,
-	)
-	if !post.IsDraft {
-		post.PublishedAt = flextime.Now()
-	}
-	err = p.postRepository.Store(post)
+	post = entity.NewPost()
+
+	err = p.postRepository.Create(post)
 	if err != nil {
-		return nil, fmt.Errorf("store post title=%v: %w", postDTO.Title, err)
+		return nil, fmt.Errorf("create new post: %w", err)
 	}
 
 	return post.ConvertToDTO(), nil

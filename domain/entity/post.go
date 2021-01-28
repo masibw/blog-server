@@ -7,6 +7,7 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
 
+	"github.com/masibw/blog-server/constant"
 	"github.com/masibw/blog-server/util"
 
 	"github.com/Songmu/flextime"
@@ -25,14 +26,14 @@ type Post struct {
 	PublishedAt  time.Time
 }
 
-func NewPost(title string, thumbnailURL string, content string, permalink string, isDraft bool) *Post {
+func NewPost() *Post {
 	return &Post{
 		ID:           util.Generate(flextime.Now()),
-		Title:        title,
-		ThumbnailURL: thumbnailURL,
-		Content:      content,
-		Permalink:    permalink,
-		IsDraft:      isDraft,
+		Title:        "",
+		ThumbnailURL: constant.DefaultThumbnailURL,
+		Content:      "",
+		Permalink:    "",
+		IsDraft:      true,
 		PublishedAt:  time.Time{},
 	}
 }

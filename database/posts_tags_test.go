@@ -169,7 +169,7 @@ func TestPostsTagsRepository_Store(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &PostsTagsRepository{db: tx}
 			if err := r.Store(tt.postTags); !errors.Is(err, tt.wantErr) {
-				t.Errorf("Store() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

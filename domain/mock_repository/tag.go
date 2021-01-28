@@ -5,9 +5,10 @@
 package mock_repository
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
-	reflect "reflect"
 )
 
 // MockTag is a mock of Tag interface
@@ -81,7 +82,7 @@ func (mr *MockTagMockRecorder) FindByName(name interface{}) *gomock.Call {
 // Store mocks base method
 func (m *MockTag) Store(post *entity.Tag) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Store", post)
+	ret := m.ctrl.Call(m, "Create", post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -89,7 +90,7 @@ func (m *MockTag) Store(post *entity.Tag) error {
 // Store indicates an expected call of Store
 func (mr *MockTagMockRecorder) Store(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockTag)(nil).Store), post)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTag)(nil).Store), post)
 }
 
 // Delete mocks base method
