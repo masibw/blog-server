@@ -71,7 +71,7 @@ func (p *PostUseCase) UpdatePost(postDTO *dto.PostDTO) (*dto.PostDTO, error) {
 	}
 
 	// 更新する投稿と違うIDを持ち，既に更新先Permalinkを持つ投稿があるとエラー
-	if permalinkPost != nil && permalinkPost.ID != postDTO.ID {
+	if permalinkPost != nil && permalinkPost.ID != postDTO.ID && postDTO.Permalink != "" {
 		return nil, fmt.Errorf("update post permalink=%v: %w", postDTO.Permalink, entity.ErrPermalinkAlreadyExisted)
 	}
 
