@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/masibw/blog-server/domain/service"
+
 	"github.com/masibw/blog-server/usecase"
 
 	"github.com/masibw/blog-server/web"
@@ -47,7 +49,11 @@ func main() {
 	tagRepository := database.NewTagRepository(db)
 	tagUC := usecase.NewTagUseCase(tagRepository)
 
-	e := web.NewServer(postUC, tagUC)
+	postsTagsRepository := database.NewPostsTagsRepository(db)
+
+	postsTagsService := service.NewPostsTagsService(postsTagsRepository, postRepository, tagRepository)
+
+	e := web.NewServer(postUC, tagUC, postsTagsService)
 
 	if err := e.Run(":8080"); err != nil {
 		if err != nil {

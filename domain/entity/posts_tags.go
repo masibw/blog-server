@@ -9,11 +9,19 @@ import (
 )
 
 type PostsTags struct {
-	ID        string `gorm:"PRIMARY_KEY"`
-	PostID    string
-	TagID     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `gorm:"PRIMARY_KEY"`
+	PostID    string    `gorm:"column:post_id"`
+	TagID     string    `gorm:"column:tag_id"`
+	CreatedAt time.Time `gorm:"column:created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at"`
+}
+
+type Tabler interface {
+	TableName() string
+}
+
+func (PostsTags) TableName() string {
+	return "posts_tags"
 }
 
 func NewPostsTags(postID, tagID string) *PostsTags {

@@ -3,16 +3,18 @@ package web
 import (
 	"net/http"
 
+	"github.com/masibw/blog-server/domain/service"
+
 	"github.com/masibw/blog-server/usecase"
 
 	"github.com/gin-gonic/gin"
 	"github.com/masibw/blog-server/web/handler"
 )
 
-func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase) (e *gin.Engine) {
+func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, postsTagsService *service.PostsTagsService) (e *gin.Engine) {
 	e = gin.Default()
 
-	postHandler := handler.NewPostHandler(postUC)
+	postHandler := handler.NewPostHandler(postUC, postsTagsService)
 	tagHandler := handler.NewTagHandler(tagUC)
 
 	e.GET("/", func(c *gin.Context) {

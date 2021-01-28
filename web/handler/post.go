@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/masibw/blog-server/domain/service"
+
 	"github.com/masibw/blog-server/domain/entity"
 
 	"github.com/masibw/blog-server/domain/dto"
@@ -18,11 +20,15 @@ import (
 )
 
 type PostHandler struct {
-	postUC *usecase.PostUseCase
+	postUC           *usecase.PostUseCase
+	postsTagsService *service.PostsTagsService
 }
 
-func NewPostHandler(postUC *usecase.PostUseCase) *PostHandler {
-	return &PostHandler{postUC: postUC}
+func NewPostHandler(postUC *usecase.PostUseCase, postsTagsservice *service.PostsTagsService) *PostHandler {
+	return &PostHandler{
+		postUC:           postUC,
+		postsTagsService: postsTagsservice,
+	}
 }
 
 // StorePost は POST /posts に対応するハンドラーです。
@@ -43,7 +49,7 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 // UpdatePost は PUT /posts/:id に対応するハンドラーです。
 func (p *PostHandler) UpdatePost(c *gin.Context) {
 
-	type request struct {
+	type postReq struct {
 		ID           string    `json:"id" binding:"required"`
 		Title        string    `json:"title"`
 		ThumbnailURL string    `json:"thumbnailUrl" binding:"required"`
@@ -55,8 +61,12 @@ func (p *PostHandler) UpdatePost(c *gin.Context) {
 		PublishedAt  time.Time `json:"publishedAt" `
 	}
 
-	req := &request{}
+	type request struct {
+		Post postReq  `json:"post" binding:"dive"`
+		Tags []string `json:"tags"`
+	}
 
+	req := &request{}
 	logger := log.GetLogger()
 	if err := c.ShouldBindJSON(req); err != nil {
 		logger.Errorf("failed to bind", err)
@@ -65,17 +75,16 @@ func (p *PostHandler) UpdatePost(c *gin.Context) {
 	}
 
 	postDTO := &dto.PostDTO{
-		ID:           req.ID,
-		Title:        req.Title,
-		ThumbnailURL: req.ThumbnailURL,
-		Content:      req.Content,
-		Permalink:    req.Permalink,
-		IsDraft:      req.IsDraft,
-		CreatedAt:    req.CreatedAt,
-		UpdatedAt:    req.UpdatedAt,
-		PublishedAt:  req.PublishedAt,
+		ID:           req.Post.ID,
+		Title:        req.Post.Title,
+		ThumbnailURL: req.Post.ThumbnailURL,
+		Content:      req.Post.Content,
+		Permalink:    req.Post.Permalink,
+		IsDraft:      req.Post.IsDraft,
+		CreatedAt:    req.Post.CreatedAt,
+		UpdatedAt:    req.Post.UpdatedAt,
+		PublishedAt:  req.Post.PublishedAt,
 	}
-
 	post, err := p.postUC.UpdatePost(postDTO)
 
 	if err != nil {
@@ -94,8 +103,30 @@ func (p *PostHandler) UpdatePost(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
+
+	var tags []*entity.Tag
+	tags, err = p.postsTagsService.LinkPostTags(req.Post.ID, req.Tags)
+	if err != nil {
+		if errors.Is(err, entity.ErrPostsTagsAlreadyExisted) {
+			logger.Debugf("update post tags already exists", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		if errors.Is(err, entity.ErrPostNotFound) {
+			logger.Debugf("update post not found", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		logger.Errorf("update post", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"post": post,
+		"tags": tags,
 	})
 }
 

@@ -5,10 +5,9 @@
 package mock_repository
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
+	reflect "reflect"
 )
 
 // MockPostsTags is a mock of PostsTags interface
@@ -50,9 +49,9 @@ func (mr *MockPostsTagsMockRecorder) FindByPostIDAndTagName(postID, tagName inte
 }
 
 // Store mocks base method
-func (m *MockPostsTags) Store(postsTags *entity.PostsTags) error {
+func (m *MockPostsTags) Store(postsTags []*entity.PostsTags) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", postsTags)
+	ret := m.ctrl.Call(m, "Store", postsTags)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -60,7 +59,7 @@ func (m *MockPostsTags) Store(postsTags *entity.PostsTags) error {
 // Store indicates an expected call of Store
 func (mr *MockPostsTagsMockRecorder) Store(postsTags interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPostsTags)(nil).Store), postsTags)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockPostsTags)(nil).Store), postsTags)
 }
 
 // Delete mocks base method
@@ -75,4 +74,18 @@ func (m *MockPostsTags) Delete(id string) error {
 func (mr *MockPostsTagsMockRecorder) Delete(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockPostsTags)(nil).Delete), id)
+}
+
+// DeleteByPostID mocks base method
+func (m *MockPostsTags) DeleteByPostID(postID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteByPostID", postID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteByPostID indicates an expected call of DeleteByPostID
+func (mr *MockPostsTagsMockRecorder) DeleteByPostID(postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByPostID", reflect.TypeOf((*MockPostsTags)(nil).DeleteByPostID), postID)
 }
