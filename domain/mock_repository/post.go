@@ -5,9 +5,10 @@
 package mock_repository
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
-	reflect "reflect"
 )
 
 // MockPost is a mock of Post interface
@@ -49,9 +50,9 @@ func (mr *MockPostMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method
-func (m *MockPost) FindAll(offset, pageSize int, conditions string, params []interface{}) ([]*entity.Post, error) {
+func (m *MockPost) FindAll(offset, pageSize int, condition string, params []interface{}) ([]*entity.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, conditions, params)
+	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, condition, params)
 	ret0, _ := ret[0].([]*entity.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1

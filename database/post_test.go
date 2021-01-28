@@ -285,7 +285,7 @@ func TestPostRepository_FindByPermalink(t *testing.T) {
 	tx.Rollback()
 }
 
-func TestPostRepository_FindAll(t *testing.T) {
+func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 	tx := db.Begin()
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
@@ -295,14 +295,16 @@ func TestPostRepository_FindAll(t *testing.T) {
 	defer flextime.Restore()
 
 	tests := []struct {
-		name       string
-		existPosts []*entity.Post
-		offset     int
-		pageSize   int
-		condition  string
-		params     []interface{}
-		want       []*entity.Post
-		wantErr    error
+		name           string
+		existPosts     []*entity.Post
+		existTag       *entity.Tag
+		existPostsTags *entity.PostsTags
+		offset         int
+		pageSize       int
+		condition      string
+		params         []interface{}
+		want           []*entity.Post
+		wantErr        error
 	}{
 		{
 			name: "存在する投稿を正常に全件取得できる",
@@ -482,7 +484,69 @@ func TestPostRepository_FindAll(t *testing.T) {
 			}},
 			wantErr: nil,
 		},
-
+		{
+			name: "tagパラメータを適用して取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy5",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy6",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy7",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      true,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			existTag: &entity.Tag{
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				Name:      "new_tag",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
+			existPostsTags: &entity.PostsTags{
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				PostID:    "abcdefghijklmnopqrstuvwxy5",
+				TagID:     "abcdefghijklmnopqrstuvwxy2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
+			offset:    0,
+			pageSize:  0,
+			condition: "tags.name = ?",
+			params:    []interface{}{"new_tag"},
+			want: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy5",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			wantErr: nil,
+		},
 		{
 			name:       "投稿が存在しない場合はErrPostNotFoundを返す",
 			existPosts: nil,
@@ -494,12 +558,26 @@ func TestPostRepository_FindAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.existPosts != nil {
-				if err := tx.Create(tt.existPosts).Error; err != nil {
+				if err := tx.Debug().Create(tt.existPosts).Error; err != nil {
 					t.Fatal(err)
 				}
 			}
-
-			r := &PostRepository{db: tx}
+			if tt.existTag != nil {
+				if err := tx.Debug().Create(tt.existTag).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tt.existPostsTags != nil {
+				if err := tx.Debug().Create(tt.existPostsTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+			var posts []*entity.Post
+			tx.Find(&posts)
+			for _, v := range posts {
+				t.Logf("%v", v)
+			}
+			r := &PostRepository{db: tx.Debug()}
 			got, err := r.FindAll(tt.offset, tt.pageSize, tt.condition, tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("FindAll()  error = %v, wantErr %v", err, tt.wantErr)
@@ -507,6 +585,18 @@ func TestPostRepository_FindAll(t *testing.T) {
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("FindByID() mismatch (-want +got):\n%s", diff)
+			}
+
+			if tt.existPostsTags != nil {
+				if err := tx.Delete(tt.existPostsTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			if tt.existTag != nil {
+				if err := tx.Delete(tt.existTag).Error; err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			if tt.existPosts != nil {

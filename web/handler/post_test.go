@@ -351,6 +351,22 @@ func TestPostHandler_GetPosts(t *testing.T) {
 				},
 			},
 			wantCode: http.StatusOK,
+		},
+		{
+			name: "tagを指定した時も正しく取得できる",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+			},
+			params: []struct {
+				name  string
+				value string
+			}{
+				{
+					"tag",
+					"a",
+				},
+			},
+			wantCode: http.StatusOK,
 		}, {
 			name: "is-draftを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
