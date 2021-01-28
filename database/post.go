@@ -52,7 +52,8 @@ func (r *PostRepository) Create(post *entity.Post) error {
 }
 
 func (r *PostRepository) Update(post *entity.Post) error {
-	if err := r.db.Updates(post).Error; err != nil {
+
+	if err := r.db.Select("*").Updates(post).Error; err != nil {
 		return fmt.Errorf("update post: %w", err)
 	}
 	return nil
