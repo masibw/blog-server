@@ -18,6 +18,8 @@ var (
 	ErrPostAlreadyExisted = errors.New("post has already existed")
 	// ErrPermalinkAlreadyExisted はパーマリンクが既に存在しているエラーを表します。
 	ErrPermalinkAlreadyExisted = errors.New("permalink has already existed")
+	// ErrPostHasEmptyField は投稿に未入力項目があるエラーを表します。
+	ErrPostHasEmptyField = errors.New("some fields that have not been filled")
 
 	// ErrTagNotFound はタグが存在しないエラーを表します。
 	ErrTagNotFound = errors.New("tag not found")

@@ -134,6 +134,267 @@ func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 	}
 }
 
+func TestPostUseCase_UpdatePost(t *testing.T) { // nolint:gocognit
+
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	tests := []struct {
+		name                  string
+		postDTO               *dto.PostDTO
+		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
+		wantErr               error
+	}{
+		{
+			name: "投稿を更新し、その投稿を返す",
+			postDTO: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := true; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  time.Time{},
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content",
+					Permalink:    "new_permalink",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().Update(gomock.Any()).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "投稿が存在しなければErrPostNotFoundエラーを返す",
+			postDTO: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := true; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  time.Time{},
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+			},
+			wantErr: entity.ErrPostNotFound,
+		},
+		{
+			name: "既に更新先のPermalinkが別の投稿で使用されている場合はErrPermalinkAlreadyExistedエラーを返す",
+			postDTO: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := true; return &b }(),
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content",
+					Permalink:    "new_permalink",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(&entity.Post{
+					ID:           "another_id",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content2",
+					Permalink:    "new_permalink",
+					IsDraft:      false,
+					CreatedAt:    time.Time{},
+					UpdatedAt:    time.Time{},
+					PublishedAt:  time.Time{},
+				}, nil)
+			},
+			wantErr: entity.ErrPermalinkAlreadyExisted,
+		},
+		{
+			name: "publishedAtが初期値で，IsDraftがfalseであればPublishedAtが登録されていること",
+			postDTO: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := false; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  time.Time{},
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content",
+					Permalink:    "new_permalink",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{}}, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().Update(gomock.Any()).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "publishedAtが初期値ではなくIsDraftがfalseであればPublishedAtが更新されないこと",
+			postDTO: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := false; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content",
+					Permalink:    "new_permalink",
+					IsDraft:      false,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().Update(gomock.Any()).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "IsDraftがtrueでTitle,Content,Permalinkが空であれば，更新できる",
+			postDTO: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "",
+				Permalink:    "",
+				IsDraft:      func() *bool { b := true; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "",
+					Permalink:    "",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().Update(gomock.Any()).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "IsDraftがfalseでTitle,Content,Permalinkが空であれば entity.ErrPostHasEmptyFieldエラーを返す",
+			postDTO: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "",
+				Permalink:    "",
+				IsDraft:      func() *bool { b := false; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			},
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {},
+			wantErr:               entity.ErrPostHasEmptyField,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mr := mock_repository.NewMockPost(ctrl)
+			tt.prepareMockPostRepoFn(mr)
+			p := &PostUseCase{
+				postRepository: mr,
+			}
+
+			got, err := p.UpdatePost(tt.postDTO)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("UpdatePost() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if tt.wantErr != nil {
+				return
+			}
+			if got.ID == "" {
+				t.Errorf("UpdatePost() ID nil want UULD")
+			}
+			if got.CreatedAt.Unix() == 0 || got.UpdatedAt.Unix() == 0 {
+				t.Errorf("UpdatePost() time.Time field did not filled with value")
+			}
+
+			if got.ThumbnailURL != tt.postDTO.ThumbnailURL {
+				t.Errorf("UpdatePost() ThumbnailURL does not match got: %v, want: %v", got, tt.postDTO)
+			}
+
+			if got.Title != tt.postDTO.Title {
+				t.Errorf("UpdatePost() Title does not match got: %v, want: %v", got, tt.postDTO)
+			}
+			if got.Content != tt.postDTO.Content {
+				t.Errorf("UpdatePost() Content does not match got: %v, want: %v", got, tt.postDTO)
+			}
+			if got.Permalink != tt.postDTO.Permalink {
+				t.Errorf("UpdatePost() Permalink does not match got: %v, want: %v", got, tt.postDTO)
+			}
+
+			if *got.IsDraft != *tt.postDTO.IsDraft {
+				t.Errorf("UpdatePost() IsDraft does not match got: %v, want: %v", got, tt.postDTO)
+			}
+
+			if *tt.postDTO.IsDraft && got.PublishedAt != tt.postDTO.PublishedAt {
+				t.Errorf("UpdatePost() PublishedAt updated: %v, want: %v", got.PublishedAt, flextime.Now())
+			}
+
+			if !*tt.postDTO.IsDraft && got.PublishedAt.IsZero() {
+				t.Errorf("UpdatePost() PublishedAt does not set got: %v, want: %v", got.PublishedAt, flextime.Now())
+			}
+
+		})
+	}
+}
+
 func TestPostUseCase_GetPosts(t *testing.T) {
 
 	loc, err := time.LoadLocation("Asia/Tokyo")

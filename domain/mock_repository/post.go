@@ -92,6 +92,20 @@ func (mr *MockPostMockRecorder) Store(post interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockPost)(nil).Store), post)
 }
 
+// Update mocks base method
+func (m *MockPost) Update(post *entity.Post) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", post)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update
+func (mr *MockPostMockRecorder) Update(post interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPost)(nil).Update), post)
+}
+
 // Delete mocks base method
 func (m *MockPost) Delete(id string) error {
 	m.ctrl.T.Helper()

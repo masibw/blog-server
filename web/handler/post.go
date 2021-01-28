@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/masibw/blog-server/domain/entity"
 
@@ -45,6 +46,65 @@ func (p *PostHandler) StorePost(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
+		"post": post,
+	})
+}
+
+// UpdatePost は PUT /posts/:id に対応するハンドラーです。
+func (p *PostHandler) UpdatePost(c *gin.Context) {
+
+	type request struct {
+		ID           string    `json:"id" binding:"required"`
+		Title        string    `json:"title"`
+		ThumbnailURL string    `json:"thumbnailUrl" binding:"required"`
+		Content      string    `json:"content" `
+		Permalink    string    `json:"permalink" `
+		IsDraft      *bool     `json:"isDraft" binding:"required"`
+		CreatedAt    time.Time `json:"createdAt" binding:"required"`
+		UpdatedAt    time.Time `json:"updatedAt" binding:"required"`
+		PublishedAt  time.Time `json:"publishedAt" `
+	}
+
+	req := &request{}
+
+	logger := log.GetLogger()
+	if err := c.ShouldBindJSON(req); err != nil {
+		logger.Errorf("failed to bind", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	postDTO := &dto.PostDTO{
+		ID:           req.ID,
+		Title:        req.Title,
+		ThumbnailURL: req.ThumbnailURL,
+		Content:      req.Content,
+		Permalink:    req.Permalink,
+		IsDraft:      req.IsDraft,
+		CreatedAt:    req.CreatedAt,
+		UpdatedAt:    req.UpdatedAt,
+		PublishedAt:  req.PublishedAt,
+	}
+
+	post, err := p.postUC.UpdatePost(postDTO)
+
+	if err != nil {
+		if errors.Is(err, entity.ErrPermalinkAlreadyExisted) {
+			logger.Debugf("update post already existed", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		if errors.Is(err, entity.ErrPostNotFound) {
+			logger.Debugf("update post not found", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		logger.Errorf("update post", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
 		"post": post,
 	})
 }

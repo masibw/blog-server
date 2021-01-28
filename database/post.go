@@ -51,6 +51,13 @@ func (r *PostRepository) Store(post *entity.Post) error {
 	return nil
 }
 
+func (r *PostRepository) Update(post *entity.Post) error {
+	if err := r.db.Updates(post).Error; err != nil {
+		return fmt.Errorf("update post: %w", err)
+	}
+	return nil
+}
+
 func (r *PostRepository) FindAll(offset, pageSize int, condition string, params []interface{}) (posts []*entity.Post, err error) {
 	if err = r.db.Where(condition, params...).Offset(offset).Limit(pageSize).Find(&posts).Error; err != nil {
 		err = fmt.Errorf("find all posts: %w", err)

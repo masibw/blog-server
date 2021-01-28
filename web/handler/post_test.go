@@ -107,6 +107,122 @@ func TestPostHandler_StorePost(t *testing.T) {
 	}
 }
 
+func TestPostHandler_UpdatePost(t *testing.T) {
+	tests := []struct {
+		name                  string
+		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
+		ID                    string
+		body                  string
+		wantCode              int
+	}{
+		{
+			name: "正常に投稿を更新できる",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content",
+					Permalink:    "new_permalink",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().Update(gomock.Any()).Return(nil)
+			},
+			ID: "abcdefghijklmnopqrstuvwxyz",
+			body: `{
+				"ID" : "abcdefghijklmnopqrstuvwxyz",
+				"title" : "new_post",
+				"thumbnailUrl" : "new_thumbnail_url",
+				"content" : "new_content",
+				"permalink" : "new_permalink",
+				"isDraft" : true,
+				"createdAt": "2021-01-24T17:49:01+09:00",
+				"updatedAt": "2021-01-27T14:48:55+09:00",
+				"publishedAt": "0001-01-01T00:00:00Z"
+			}`,
+			wantCode: http.StatusOK,
+		},
+		{
+			name: "postDTOが満たされない時はStatusBadRequestエラーが返る",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+			},
+			body:     "",
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			name: "更新に失敗した時はStatusInternalServerErrorエラーが返る",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content",
+					Permalink:    "new_permalink",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().Update(gomock.Any()).Return(errors.New("dummy error"))
+			},
+			ID: "abcdefghijklmnopqrstuvwxyz",
+			body: `{
+				"ID" : "abcdefghijklmnopqrstuvwxyz",
+				"title" : "new_post",
+				"thumbnailUrl" : "new_thumbnail_url",
+				"content" : "new_content",
+				"permalink" : "new_permalink",
+				"isDraft" : true,
+				"createdAt": "2021-01-24T17:49:01+09:00",
+				"updatedAt": "2021-01-27T14:48:55+09:00",
+				"publishedAt": "0001-01-01T00:00:00Z"
+			}`,
+			wantCode: http.StatusInternalServerError,
+		},
+		{
+			name: "bodyのbindに失敗した時はStatusBadRequestエラーが返る",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+			},
+			ID: "abcdefghijklmnopqrstuvwxyz",
+			body: `{
+			}`,
+			wantCode: http.StatusBadRequest,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// Repositoryのモック
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mr := mock_repository.NewMockPost(ctrl)
+			tt.prepareMockPostRepoFn(mr)
+			postUC := usecase.NewPostUseCase(mr)
+
+			// HTTPRequestをテストするために必要な部分
+			w := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(w)
+			body := bytes.NewBufferString(tt.body)
+			req, _ := http.NewRequest(http.MethodPut, "/api/v1/posts/"+tt.ID, body)
+			req.Header.Set("Content-Type", "application/json")
+			c.Request = req
+
+			p := &PostHandler{
+				postUC: postUC,
+			}
+			p.UpdatePost(c)
+			if w.Code != tt.wantCode {
+				t.Errorf("UpdatePost() code = %d, want = %d", w.Code, tt.wantCode)
+			}
+		})
+	}
+}
+
 func TestPostHandler_GetPosts(t *testing.T) {
 
 	loc, err := time.LoadLocation("Asia/Tokyo")

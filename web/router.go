@@ -27,6 +27,7 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase) (e *gin.E
 	posts.GET("", postHandler.GetPosts)
 	posts.POST("", postHandler.StorePost)
 	posts.GET(":id", postHandler.GetPost)
+	posts.PUT(":id", postHandler.UpdatePost)
 	posts.DELETE(":id", postHandler.DeletePost)
 
 	tags := v1.Group("/tags")

@@ -51,6 +51,18 @@ func (p *Post) ConvertToDTO() *dto.PostDTO {
 	}
 }
 
+func (p *Post) ConvertFromDTO(postDTO *dto.PostDTO) {
+	p.ID = postDTO.ID
+	p.Title = postDTO.Title
+	p.ThumbnailURL = postDTO.ThumbnailURL
+	p.Content = postDTO.Content
+	p.Permalink = postDTO.Permalink
+	p.IsDraft = *postDTO.IsDraft
+	p.UpdatedAt = postDTO.UpdatedAt
+	p.CreatedAt = postDTO.CreatedAt
+	p.PublishedAt = postDTO.PublishedAt
+}
+
 func (p *Post) ConvertContentToHTML() {
 	bytesContent := *(*[]byte)(unsafe.Pointer(&p.Content))
 	unsafeHTML := blackfriday.Run(bytesContent)
