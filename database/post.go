@@ -41,7 +41,7 @@ func (r *PostRepository) FindByPermalink(permalink string) (*entity.Post, error)
 	return post, nil
 }
 
-func (r *PostRepository) Store(post *entity.Post) error {
+func (r *PostRepository) Create(post *entity.Post) error {
 	if err := r.db.Create(post).Error; err != nil {
 		if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
 			return fmt.Errorf("create post: %w", entity.ErrPostAlreadyExisted)

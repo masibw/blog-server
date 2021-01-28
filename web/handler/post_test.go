@@ -29,53 +29,18 @@ func TestPostHandler_StorePost(t *testing.T) {
 		{
 			name: "正常に投稿を保存できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
-				mock.EXPECT().Store(gomock.Any()).Return(nil)
+				mock.EXPECT().Create(gomock.Any()).Return(nil)
 			},
-			body: `{
-				"title" : "new_post",
-				"thumbnailUrl" : "new_thumbnail_url",
-				"content" : "new_content",
-				"permalink" : "new_permalink",
-				"isDraft" : false
-			}`,
+			body:     ``,
 			wantCode: http.StatusCreated,
-		},
-		{
-			name: "postDTOが満たされない時はStatusBadRequestエラーが返る",
-			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-			},
-			body:     "",
-			wantCode: http.StatusBadRequest,
 		},
 		{
 			name: "保存に失敗した時はStatusInternalServerErrorエラーが返る",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByPermalink("new_permalink").Return(nil, nil)
-				mock.EXPECT().Store(gomock.Any()).Return(errors.New("dummy error"))
+				mock.EXPECT().Create(gomock.Any()).Return(errors.New("dummy error"))
 			},
-			body: `{
-				"title" : "new_post",
-				"thumbnailUrl" : "new_thumbnail_url",
-				"content" : "new_content",
-				"permalink" : "new_permalink",
-				"isDraft" : false
-			}`,
+			body:     ``,
 			wantCode: http.StatusInternalServerError,
-		},
-		{
-			name: "保存に失敗した時はStatusBadRequestエラーが返る",
-			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByPermalink("new_permalink").Return(&entity.Post{}, nil)
-			},
-			body: `{
-				"title" : "new_post",
-				"thumbnailUrl" : "new_thumbnail_url",
-				"content" : "new_content",
-				"permalink" : "new_permalink",
-				"isDraft" : false
-			}`,
-			wantCode: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
@@ -101,7 +66,7 @@ func TestPostHandler_StorePost(t *testing.T) {
 			}
 			p.StorePost(c)
 			if w.Code != tt.wantCode {
-				t.Errorf("StorePost() code = %d, want = %d", w.Code, tt.wantCode)
+				t.Errorf("CreatePost() code = %d, want = %d", w.Code, tt.wantCode)
 			}
 		})
 	}

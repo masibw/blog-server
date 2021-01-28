@@ -157,7 +157,7 @@ func TestPostRepository_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &PostRepository{db: tx}
 			if err := r.Update(tt.post); !errors.Is(err, tt.wantErr) {
-				t.Errorf("Store() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -207,8 +207,8 @@ func TestPostRepository_Store(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &PostRepository{db: tx}
-			if err := r.Store(tt.post); !errors.Is(err, tt.wantErr) {
-				t.Errorf("Store() error = %v, wantErr %v", err, tt.wantErr)
+			if err := r.Create(tt.post); !errors.Is(err, tt.wantErr) {
+				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

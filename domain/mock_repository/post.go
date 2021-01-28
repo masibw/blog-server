@@ -78,18 +78,18 @@ func (mr *MockPostMockRecorder) FindByPermalink(permalink interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPermalink", reflect.TypeOf((*MockPost)(nil).FindByPermalink), permalink)
 }
 
-// Store mocks base method
-func (m *MockPost) Store(post *entity.Post) error {
+// Create mocks base method
+func (m *MockPost) Create(post *entity.Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Store", post)
+	ret := m.ctrl.Call(m, "Create", post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Store indicates an expected call of Store
-func (mr *MockPostMockRecorder) Store(post interface{}) *gomock.Call {
+// Create indicates an expected call of Create
+func (mr *MockPostMockRecorder) Create(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockPost)(nil).Store), post)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPost)(nil).Create), post)
 }
 
 // Update mocks base method
