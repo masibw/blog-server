@@ -173,7 +173,14 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 		conditions = append(conditions, " is_draft = ? ")
 		params = append(params, isDraft)
 	}
-	condition := strings.Join(conditions, "")
+
+	if c.Query("tag") != "" {
+		tagName := c.Query("tag")
+		conditions = append(conditions, "tags.name = ?")
+		params = append(params, tagName)
+	}
+
+	condition := strings.Join(conditions, " AND ")
 	posts, err := p.postUC.GetPosts(offset, pageSize, condition, params)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
