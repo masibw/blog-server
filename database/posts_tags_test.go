@@ -127,39 +127,59 @@ func TestPostsTagsRepository_Store(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := tx.Create(&entity.Tag{
+	if err := tx.Create([]*entity.Tag{{
 		ID:        "abcdefghijklmnopqrstuvwxy2",
 		Name:      "new_tag",
 		CreatedAt: flextime.Now(),
 		UpdatedAt: flextime.Now(),
+	}, {
+		ID:        "abcdefghijklmnopqrstuvwxy6",
+		Name:      "new_tag2",
+		CreatedAt: flextime.Now(),
+		UpdatedAt: flextime.Now(),
+	},
 	}).Error; err != nil {
 		t.Fatal(err)
 	}
 
 	tests := []struct {
-		name     string
-		postTags *entity.PostsTags
-		wantErr  error
+		name      string
+		postsTags []*entity.PostsTags
+		wantErr   error
 	}{
 		{
-			name: "新規の投稿とタグの関連を正常に保存できる",
-			postTags: &entity.PostsTags{
-				ID:        "abcdefghijklmnopqrstuvwxy3",
+			name: "複数の新規の投稿とタグの関連を正常に保存できる",
+			postsTags: []*entity.PostsTags{{
+				ID:        "abcdefghijklmnopqrstuvwxy4",
 				PostID:    "abcdefghijklmnopqrstuvwxy1",
 				TagID:     "abcdefghijklmnopqrstuvwxy2",
 				CreatedAt: flextime.Now(),
 				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy5",
+				PostID:    "abcdefghijklmnopqrstuvwxy1",
+				TagID:     "abcdefghijklmnopqrstuvwxy6",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
 			},
 			wantErr: nil,
 		},
 		{
 			name: "既に存在するIDの場合ErrPostsTagsAlreadyExistedエラーを返す",
-			postTags: &entity.PostsTags{
-				ID:        "abcdefghijklmnopqrstuvwxy3",
+			postsTags: []*entity.PostsTags{{
+				ID:        "abcdefghijklmnopqrstuvwxy4",
 				PostID:    "abcdefghijklmnopqrstuvwxy1",
 				TagID:     "abcdefghijklmnopqrstuvwxy2",
 				CreatedAt: flextime.Now(),
 				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy4",
+				PostID:    "abcdefghijklmnopqrstuvwxy1",
+				TagID:     "abcdefghijklmnopqrstuvwxy2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
 			},
 			wantErr: entity.ErrPostsTagsAlreadyExisted,
 		},
@@ -168,7 +188,7 @@ func TestPostsTagsRepository_Store(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &PostsTagsRepository{db: tx}
-			if err := r.Store(tt.postTags); !errors.Is(err, tt.wantErr) {
+			if err := r.Store(tt.postsTags); !errors.Is(err, tt.wantErr) {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

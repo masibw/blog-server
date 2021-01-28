@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/masibw/blog-server/domain/service"
+
 	"github.com/Songmu/flextime"
 
 	"github.com/masibw/blog-server/domain/entity"
@@ -74,16 +76,16 @@ func TestPostHandler_StorePost(t *testing.T) {
 
 func TestPostHandler_UpdatePost(t *testing.T) {
 	tests := []struct {
-		name                  string
-		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
-		ID                    string
-		body                  string
-		wantCode              int
+		name              string
+		prepareMockRepoFn func(mockTags *mock_repository.MockTag, mockPosts *mock_repository.MockPost, mockPT *mock_repository.MockPostsTags)
+		ID                string
+		body              string
+		wantCode          int
 	}{
 		{
 			name: "正常に投稿を更新できる",
-			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+			prepareMockRepoFn: func(mockTags *mock_repository.MockTag, mockPosts *mock_repository.MockPost, mockPT *mock_repository.MockPostsTags) {
+				mockPosts.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
 					ID:           "abcdefghijklmnopqrstuvwxyz",
 					Title:        "new_post",
 					ThumbnailURL: "new_thumbnail_url",
@@ -94,34 +96,101 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 					UpdatedAt:    flextime.Now(),
 					PublishedAt:  time.Time{},
 				}, nil)
-				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
-				mock.EXPECT().Update(gomock.Any()).Return(nil)
+				mockPosts.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mockPosts.EXPECT().Update(gomock.Any()).Return(nil)
+				mockPosts.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{}, nil)
+				mockPT.EXPECT().DeleteByPostID(gomock.Any()).Return(nil)
+				mockTags.EXPECT().FindByName("a").Return(&entity.Tag{
+					ID:        "abcdefghijklmnopqrstuvwxy2",
+					Name:      "new_tag",
+					CreatedAt: flextime.Now(),
+					UpdatedAt: flextime.Now(),
+				}, nil)
+				mockTags.EXPECT().FindByName("b").Return(&entity.Tag{
+					ID:        "abcdefghijklmnopqrstuvwxy3",
+					Name:      "new_tag2",
+					CreatedAt: flextime.Now(),
+					UpdatedAt: flextime.Now(),
+				}, nil)
+				mockPT.EXPECT().Store(gomock.AssignableToTypeOf([]*entity.PostsTags{})).Return(nil)
+
 			},
 			ID: "abcdefghijklmnopqrstuvwxyz",
 			body: `{
-				"ID" : "abcdefghijklmnopqrstuvwxyz",
-				"title" : "new_post",
-				"thumbnailUrl" : "new_thumbnail_url",
-				"content" : "new_content",
-				"permalink" : "new_permalink",
-				"isDraft" : true,
-				"createdAt": "2021-01-24T17:49:01+09:00",
-				"updatedAt": "2021-01-27T14:48:55+09:00",
-				"publishedAt": "0001-01-01T00:00:00Z"
+				"post": {
+					"id": "abcdefghijklmnopqrstuvwxyz",
+					"title": "new_post",
+					"thumbnailUrl": "new_thumbnail_url",
+					"content": "new_content",
+					"permalink": "new_permalink",
+					"isDraft": false,
+					"createdAt": "2021-01-24T17:49:01+09:00",
+					"updatedAt": "2021-01-27T14:48:55+09:00",
+					"publishedAt": "0001-01-01T00:00:00Z"
+				},
+				"tags": [
+				"a",
+				"b"
+			]
+			}`,
+			wantCode: http.StatusOK,
+		}, {
+			name: "NULLが許容されるフィールドが空でも正常に投稿を更新できる",
+			prepareMockRepoFn: func(mockTags *mock_repository.MockTag, mockPosts *mock_repository.MockPost, mockPT *mock_repository.MockPostsTags) {
+				mockPosts.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "",
+					Permalink:    "",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mockPosts.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mockPosts.EXPECT().Update(gomock.Any()).Return(nil)
+				mockPosts.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{}, nil)
+				mockPT.EXPECT().DeleteByPostID(gomock.Any()).Return(nil)
+				mockTags.EXPECT().FindByName("a").Return(&entity.Tag{
+					ID:        "abcdefghijklmnopqrstuvwxy2",
+					Name:      "new_tag",
+					CreatedAt: flextime.Now(),
+					UpdatedAt: flextime.Now(),
+				}, nil)
+				mockTags.EXPECT().FindByName("b").Return(&entity.Tag{
+					ID:        "abcdefghijklmnopqrstuvwxy3",
+					Name:      "new_tag2",
+					CreatedAt: flextime.Now(),
+					UpdatedAt: flextime.Now(),
+				}, nil)
+				mockPT.EXPECT().Store(gomock.AssignableToTypeOf([]*entity.PostsTags{})).Return(nil)
+
+			},
+			ID: "abcdefghijklmnopqrstuvwxyz",
+			body: `{
+				"post": {
+					"id": "abcdefghijklmnopqrstuvwxyz",
+					"title": "",
+					"thumbnailUrl": "new_thumbnail_url",
+					"content": "",
+					"permalink": "",
+					"isDraft": true,
+					"createdAt": "2021-01-24T17:49:01+09:00",
+					"updatedAt": "2021-01-27T14:48:55+09:00",
+					"publishedAt": "0001-01-01T00:00:00Z"
+				},
+				"tags": [
+				"a",
+				"b"
+			]
 			}`,
 			wantCode: http.StatusOK,
 		},
 		{
-			name: "postDTOが満たされない時はStatusBadRequestエラーが返る",
-			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-			},
-			body:     "",
-			wantCode: http.StatusBadRequest,
-		},
-		{
 			name: "更新に失敗した時はStatusInternalServerErrorエラーが返る",
-			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+			prepareMockRepoFn: func(mockTags *mock_repository.MockTag, mockPosts *mock_repository.MockPost, mockPT *mock_repository.MockPostsTags) {
+				mockPosts.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
 					ID:           "abcdefghijklmnopqrstuvwxyz",
 					Title:        "new_post",
 					ThumbnailURL: "new_thumbnail_url",
@@ -132,26 +201,32 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 					UpdatedAt:    flextime.Now(),
 					PublishedAt:  time.Time{},
 				}, nil)
-				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
-				mock.EXPECT().Update(gomock.Any()).Return(errors.New("dummy error"))
+				mockPosts.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mockPosts.EXPECT().Update(gomock.Any()).Return(errors.New("dummy error"))
 			},
 			ID: "abcdefghijklmnopqrstuvwxyz",
 			body: `{
-				"ID" : "abcdefghijklmnopqrstuvwxyz",
-				"title" : "new_post",
-				"thumbnailUrl" : "new_thumbnail_url",
-				"content" : "new_content",
-				"permalink" : "new_permalink",
-				"isDraft" : true,
-				"createdAt": "2021-01-24T17:49:01+09:00",
-				"updatedAt": "2021-01-27T14:48:55+09:00",
-				"publishedAt": "0001-01-01T00:00:00Z"
+				"post": {
+					"id": "abcdefghijklmnopqrstuvwxyz",
+					"title": "new_post",
+					"thumbnailUrl": "new_thumbnail_url",
+					"content": "new_content",
+					"permalink": "new_permalink",
+					"isDraft": true,
+					"createdAt": "2021-01-24T17:49:01+09:00",
+					"updatedAt": "2021-01-27T14:48:55+09:00",
+					"publishedAt": "0001-01-01T00:00:00Z"
+				},
+				"tags": [
+				"a",
+				"b"
+			]
 			}`,
 			wantCode: http.StatusInternalServerError,
 		},
 		{
 			name: "bodyのbindに失敗した時はStatusBadRequestエラーが返る",
-			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+			prepareMockRepoFn: func(mockTags *mock_repository.MockTag, mockPosts *mock_repository.MockPost, mockPT *mock_repository.MockPostsTags) {
 			},
 			ID: "abcdefghijklmnopqrstuvwxyz",
 			body: `{
@@ -165,9 +240,13 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			mr := mock_repository.NewMockPost(ctrl)
-			tt.prepareMockPostRepoFn(mr)
-			postUC := usecase.NewPostUseCase(mr)
+			mP := mock_repository.NewMockPost(ctrl)
+			mT := mock_repository.NewMockTag(ctrl)
+			mPT := mock_repository.NewMockPostsTags(ctrl)
+			tt.prepareMockRepoFn(mT, mP, mPT)
+
+			pTS := service.NewPostsTagsService(mPT, mP, mT)
+			postUC := usecase.NewPostUseCase(mP)
 
 			// HTTPRequestをテストするために必要な部分
 			w := httptest.NewRecorder()
@@ -178,7 +257,8 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 			c.Request = req
 
 			p := &PostHandler{
-				postUC: postUC,
+				postUC:           postUC,
+				postsTagsService: pTS,
 			}
 			p.UpdatePost(c)
 			if w.Code != tt.wantCode {

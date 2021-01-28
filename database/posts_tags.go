@@ -28,7 +28,7 @@ func (r *PostsTagsRepository) FindByPostIDAndTagName(postID, tagName string) (*e
 	return postsTags, nil
 }
 
-func (r *PostsTagsRepository) Store(postsTags *entity.PostsTags) error {
+func (r *PostsTagsRepository) Store(postsTags []*entity.PostsTags) error {
 	if err := r.db.Create(postsTags).Error; err != nil {
 		if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
 			return fmt.Errorf("create posts_tags: %w", entity.ErrPostsTagsAlreadyExisted)
@@ -43,6 +43,14 @@ func (r *PostsTagsRepository) Delete(id string) error {
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("delete posts_tags: %w", entity.ErrPostsTagsNotFound)
 	}
+	if err := result.Error; err != nil {
+		return fmt.Errorf("delete posts_tags: %w", err)
+	}
+	return nil
+}
+
+func (r *PostsTagsRepository) DeleteByPostID(postID string) error {
+	result := r.db.Where("post_id = ?", postID).Delete(&entity.PostsTags{})
 	if err := result.Error; err != nil {
 		return fmt.Errorf("delete posts_tags: %w", err)
 	}
