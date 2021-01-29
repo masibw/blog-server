@@ -6,11 +6,17 @@ import "errors"
 // エラー: 1062 SQLSTATE: 23000 (ER_DUP_ENTRY)
 
 var (
+
+	// ErrPasswordTooLong はパスワードが長すぎるエラーを表します．
+	ErrPasswordTooLong = errors.New("password too long")
+
 	ErrInternalServerError = errors.New("internal server error")
 	// ErrUserNotFound はユーザが存在しないエラーを表します。
 	ErrUserNotFound = errors.New("user not found")
 	// ErrUserAlreadyExisted はユーザが既に存在しているエラーを表します。
 	ErrUserAlreadyExisted = errors.New("user has already existed")
+	// ErrUserMailAddressAlreadyExisted はメールアドレスが既に存在しているエラーを表します
+	ErrUserMailAddressAlreadyExisted = errors.New("mailAddress has already existed")
 
 	// ErrPostNotFound は投稿が存在しないエラーを表します。
 	ErrPostNotFound = errors.New("post not found")
