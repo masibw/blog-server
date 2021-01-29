@@ -279,3 +279,79 @@ func TestPostsTagsRepository_Delete(t *testing.T) {
 
 	tx.Rollback()
 }
+
+func TestPostsTagsRepository_DeleteByPostID(t *testing.T) {
+	tx := db.Begin()
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	if err := tx.Create(&entity.Post{
+		ID:           "abcdefghijklmnopqrstuvwxy1",
+		Title:        "new_postTags",
+		ThumbnailURL: "new_thumbnail_url",
+		Content:      "new_content",
+		Permalink:    "new_permalink",
+		IsDraft:      false,
+		CreatedAt:    flextime.Now(),
+		UpdatedAt:    flextime.Now(),
+		PublishedAt:  flextime.Now(),
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	if err := tx.Create(&entity.Tag{
+		ID:        "abcdefghijklmnopqrstuvwxy2",
+		Name:      "new_tag",
+		CreatedAt: flextime.Now(),
+		UpdatedAt: flextime.Now(),
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name           string
+		ID             string
+		existPostsTags *entity.PostsTags
+		want           *entity.PostsTags
+		wantErr        error
+	}{
+		{
+			name: "存在する投稿とタグの関連を正常に削除できる",
+			ID:   "abcdefghijklmnopqrstuvwxy1",
+			existPostsTags: &entity.PostsTags{
+				ID:        "abcdefghijklmnopqrstuvwxy3",
+				PostID:    "abcdefghijklmnopqrstuvwxy1",
+				TagID:     "abcdefghijklmnopqrstuvwxy2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.existPostsTags != nil {
+				if err := tx.Create(tt.existPostsTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			r := &PostsTagsRepository{db: tx}
+			err := r.DeleteByPostID(tt.ID)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("DeleteByPostID() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			//TODO 削除したことを確かめるテスト
+
+		})
+	}
+
+	tx.Rollback()
+}
