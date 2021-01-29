@@ -13,6 +13,8 @@ RUN go mod download
 COPY . .
 RUN go build .
 
+RUN go build tools/admin/admin.go
+
 FROM alpine:3.13.0
 
 ENV DOCKERIZE_VERSION v0.6.1
@@ -28,4 +30,5 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 COPY ./migrations /migrations
 
 COPY --from=build /go/src/github.com/masibw/blog-server/blog-server /
+COPY --from=build /go/src/github.com/masibw/blog-server/admin /
 RUN chmod a+x /blog-server
