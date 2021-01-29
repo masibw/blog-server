@@ -44,3 +44,11 @@ prod_up:
 .PHONY: prod_down
 prod_down:
 	docker-compose -f docker-compose.prod.yml down
+
+.PHONY: admin
+admin:
+	docker-compose -f docker-compose.local.yml exec app /admin
+
+.PHONY: admin-del
+admin-del:
+	docker-compose -f docker-compose.local.yml exec app /admin -mode=delete
