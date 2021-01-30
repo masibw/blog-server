@@ -5,10 +5,9 @@
 package mock_repository
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
+	reflect "reflect"
 )
 
 // MockUser is a mock of User interface
@@ -74,9 +73,9 @@ func (m *MockUser) FindByMailAddress(mailAddress string) (*entity.User, error) {
 }
 
 // FindByMailAddress indicates an expected call of FindByMailAddress
-func (mr *MockUserMockRecorder) FindByMailAddress(permalink interface{}) *gomock.Call {
+func (mr *MockUserMockRecorder) FindByMailAddress(mailAddress interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByMailAddress", reflect.TypeOf((*MockUser)(nil).FindByMailAddress), permalink)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByMailAddress", reflect.TypeOf((*MockUser)(nil).FindByMailAddress), mailAddress)
 }
 
 // Create mocks base method
@@ -93,18 +92,18 @@ func (mr *MockUserMockRecorder) Create(user interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUser)(nil).Create), user)
 }
 
-// Update mocks base method
-func (m *MockUser) Update(user *entity.User) error {
+// UpdateLastLoggedinAt mocks base method
+func (m *MockUser) UpdateLastLoggedinAt(user *entity.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", user)
+	ret := m.ctrl.Call(m, "UpdateLastLoggedinAt", user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Update indicates an expected call of Update
-func (mr *MockUserMockRecorder) Update(user interface{}) *gomock.Call {
+// UpdateLastLoggedinAt indicates an expected call of UpdateLastLoggedinAt
+func (mr *MockUserMockRecorder) UpdateLastLoggedinAt(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUser)(nil).Update), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLastLoggedinAt", reflect.TypeOf((*MockUser)(nil).UpdateLastLoggedinAt), user)
 }
 
 // DeleteByMailAddress mocks base method
