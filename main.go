@@ -49,11 +49,15 @@ func main() {
 	tagRepository := database.NewTagRepository(db)
 	tagUC := usecase.NewTagUseCase(tagRepository)
 
+	userRepository := database.NewUserRepository(db)
+	userUC := usecase.NewUserUseCase(userRepository)
+	authMW := web.NewAuthMiddleware(userUC)
+
 	postsTagsRepository := database.NewPostsTagsRepository(db)
 
 	postsTagsService := service.NewPostsTagsService(postsTagsRepository, postRepository, tagRepository)
 
-	e := web.NewServer(postUC, tagUC, postsTagsService)
+	e := web.NewServer(postUC, tagUC, authMW, postsTagsService)
 
 	if err := e.Run(":8080"); err != nil {
 		if err != nil {

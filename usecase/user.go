@@ -45,7 +45,7 @@ func (p *UserUseCase) StoreUser(userDTO *dto.UserDTO) error {
 
 func (p *UserUseCase) GetUserByMailAddress(mailAddress string) (userDTO *dto.UserDTO, err error) {
 	var user *entity.User
-	user, err = p.userRepository.FindByID(mailAddress)
+	user, err = p.userRepository.FindByMailAddress(mailAddress)
 	if err != nil {
 		err = fmt.Errorf("get user: %w", err)
 		return

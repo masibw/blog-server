@@ -5,9 +5,10 @@
 package mock_repository
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
-	reflect "reflect"
 )
 
 // MockUser is a mock of User interface
@@ -64,9 +65,9 @@ func (mr *MockUserMockRecorder) FindAll(offset, pageSize, condition, params inte
 }
 
 // FindByMailAddress mocks base method
-func (m *MockUser) FindByMailAddress(permalink string) (*entity.User, error) {
+func (m *MockUser) FindByMailAddress(mailAddress string) (*entity.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByMailAddress", permalink)
+	ret := m.ctrl.Call(m, "FindByMailAddress", mailAddress)
 	ret0, _ := ret[0].(*entity.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1

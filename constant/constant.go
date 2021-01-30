@@ -4,3 +4,6 @@ package constant
 
 // DefaultThumbnailURL はサムネイルのデフォルトURLです
 var DefaultThumbnailURL = "default_url"
+
+// IdentityKey はjwtのIdentityKeyです
+var IdentityKey = "id"

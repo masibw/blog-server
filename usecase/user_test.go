@@ -103,7 +103,7 @@ func TestUserUseCase_GetUserByMailAddress(t *testing.T) {
 		{
 			name: "userDTOを返すこと",
 			prepareMockUserRepoFn: func(mock *mock_repository.MockUser) {
-				mock.EXPECT().FindByID(gomock.Any()).Return(existsUser, nil)
+				mock.EXPECT().FindByMailAddress(gomock.Any()).Return(existsUser, nil)
 			},
 			want: &dto.UserDTO{
 				ID:          "abcdefghijklmnopqrstuvwxyz",
@@ -116,9 +116,9 @@ func TestUserUseCase_GetUserByMailAddress(t *testing.T) {
 			wantErr:     false,
 		},
 		{
-			name: "FindByIDがエラーを返した時はuserDTOが空であること",
+			name: "FindByMailAddressがエラーを返した時はuserDTOが空であること",
 			prepareMockUserRepoFn: func(mock *mock_repository.MockUser) {
-				mock.EXPECT().FindByID("not_found").Return(nil, entity.ErrUserNotFound)
+				mock.EXPECT().FindByMailAddress("not_found").Return(nil, entity.ErrUserNotFound)
 			},
 			mailAddress: "not_found",
 			want:        nil,
