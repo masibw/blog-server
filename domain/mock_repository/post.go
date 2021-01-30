@@ -5,10 +5,9 @@
 package mock_repository
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
+	reflect "reflect"
 )
 
 // MockPost is a mock of Post interface
@@ -50,18 +49,18 @@ func (mr *MockPostMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method
-func (m *MockPost) FindAll(offset, pageSize int, condition string, params []interface{}) ([]*entity.Post, error) {
+func (m *MockPost) FindAll(offset, pageSize int, condition string, params []interface{}, sortCondition string) ([]*entity.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, condition, params)
+	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, condition, params, sortCondition)
 	ret0, _ := ret[0].([]*entity.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindAll indicates an expected call of FindAll
-func (mr *MockPostMockRecorder) FindAll(offset, pageSize, conditions, params interface{}) *gomock.Call {
+func (mr *MockPostMockRecorder) FindAll(offset, pageSize, condition, params, sortCondition interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockPost)(nil).FindAll), offset, pageSize, conditions, params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockPost)(nil).FindAll), offset, pageSize, condition, params, sortCondition)
 }
 
 // FindByPermalink mocks base method

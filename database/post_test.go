@@ -303,6 +303,7 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 		pageSize       int
 		condition      string
 		params         []interface{}
+		sortCondition  string
 		want           []*entity.Post
 		wantErr        error
 	}{
@@ -339,10 +340,11 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 				UpdatedAt:    flextime.Now(),
 				PublishedAt:  flextime.Now(),
 			}},
-			offset:    0,
-			pageSize:  0,
-			condition: "",
-			params:    []interface{}{},
+			offset:        0,
+			pageSize:      0,
+			condition:     "",
+			params:        []interface{}{},
+			sortCondition: "id asc",
 			want: []*entity.Post{{
 				ID:           "abcdefghijklmnopqrstuvwxy1",
 				Title:        "new_post",
@@ -408,10 +410,11 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 				UpdatedAt:    flextime.Now(),
 				PublishedAt:  flextime.Now(),
 			}},
-			offset:    1,
-			pageSize:  2,
-			condition: "",
-			params:    []interface{}{},
+			offset:        1,
+			pageSize:      2,
+			condition:     "",
+			params:        []interface{}{},
+			sortCondition: "id asc",
 			want: []*entity.Post{{
 				ID:           "abcdefghijklmnopqrstuvwxy2",
 				Title:        "new_post",
@@ -467,10 +470,11 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 				UpdatedAt:    flextime.Now(),
 				PublishedAt:  flextime.Now(),
 			}},
-			offset:    0,
-			pageSize:  0,
-			condition: "is_draft = ?",
-			params:    []interface{}{true},
+			offset:        0,
+			pageSize:      0,
+			condition:     "is_draft = ?",
+			params:        []interface{}{true},
+			sortCondition: "id asc",
 			want: []*entity.Post{{
 				ID:           "abcdefghijklmnopqrstuvwxy3",
 				Title:        "new_post",
@@ -530,10 +534,11 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 				CreatedAt: flextime.Now(),
 				UpdatedAt: flextime.Now(),
 			},
-			offset:    0,
-			pageSize:  0,
-			condition: "tags.name = ?",
-			params:    []interface{}{"new_tag"},
+			offset:        0,
+			pageSize:      0,
+			condition:     "tags.name = ?",
+			params:        []interface{}{"new_tag"},
+			sortCondition: "id asc",
 			want: []*entity.Post{{
 				ID:           "abcdefghijklmnopqrstuvwxy5",
 				Title:        "new_post",
@@ -546,12 +551,83 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 				PublishedAt:  flextime.Now(),
 			}},
 			wantErr: nil,
+		}, {
+			name: "created_atの降順に取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy1",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy2",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now().Add(time.Second * 2),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy3",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now().Add(time.Second * 3),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			offset:        0,
+			pageSize:      0,
+			condition:     "",
+			params:        []interface{}{},
+			sortCondition: "created_at desc",
+			want: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy3",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now().Add(time.Second * 3),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy2",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now().Add(time.Second * 2),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy1",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			wantErr: nil,
 		},
 		{
-			name:       "投稿が存在しない場合はErrPostNotFoundを返す",
-			existPosts: nil,
-			want:       []*entity.Post{},
-			wantErr:    entity.ErrPostNotFound,
+			name:          "投稿が存在しない場合はErrPostNotFoundを返す",
+			existPosts:    nil,
+			sortCondition: "id asc",
+			want:          []*entity.Post{},
+			wantErr:       entity.ErrPostNotFound,
 		},
 	}
 
@@ -572,13 +648,8 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 					t.Fatal(err)
 				}
 			}
-			var posts []*entity.Post
-			tx.Find(&posts)
-			for _, v := range posts {
-				t.Logf("%v", v)
-			}
 			r := &PostRepository{db: tx.Debug()}
-			got, err := r.FindAll(tt.offset, tt.pageSize, tt.condition, tt.params)
+			got, err := r.FindAll(tt.offset, tt.pageSize, tt.condition, tt.params, tt.sortCondition)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("FindAll()  error = %v, wantErr %v", err, tt.wantErr)
 			}

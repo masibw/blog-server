@@ -180,8 +180,46 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 		params = append(params, tagName)
 	}
 
+	var sortCondition string
+	if c.Query("sort") != "" {
+		sort := c.Query("sort")
+		order := " asc"
+		if strings.HasPrefix(sort, "-") {
+			order = " desc"
+			sort = sort[1:]
+		}
+
+		var column string
+		switch sort {
+		case "id":
+			column = "id"
+		case "title":
+			column = "title"
+		case "thumbnailUrl", "thumbnail_url":
+			column = "thumbnail_url"
+		case "content":
+			column = "content"
+		case "permalink":
+			column = "permalink"
+		case "isDraft", "is_draft":
+			column = "is_draft"
+		case "createdAt", "created_at":
+			column = "created_at"
+		case "updatedAt", "updated_at":
+			column = "updated_at"
+		case "publishedAt", "published_at":
+			column = "published_at"
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{"error": entity.ErrPostColumnNotFound.Error()})
+			return
+		}
+		sortCondition = column + order
+	} else {
+		sortCondition = "id asc"
+	}
+
 	condition := strings.Join(conditions, " AND ")
-	posts, err := p.postUC.GetPosts(offset, pageSize, condition, params)
+	posts, err := p.postUC.GetPosts(offset, pageSize, condition, params, sortCondition)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get posts not found", err)

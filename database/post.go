@@ -59,8 +59,8 @@ func (r *PostRepository) Update(post *entity.Post) error {
 	return nil
 }
 
-func (r *PostRepository) FindAll(offset, pageSize int, condition string, params []interface{}) (posts []*entity.Post, err error) {
-	if err = r.db.Where(condition, params...).Limit(pageSize).Offset(offset).Joins("LEFT JOIN posts_tags on posts_tags.post_id = posts.id").Joins("LEFT JOIN tags on posts_tags.tag_id = tags.id").Find(&posts).Error; err != nil {
+func (r *PostRepository) FindAll(offset, pageSize int, condition string, params []interface{}, sortCondition string) (posts []*entity.Post, err error) {
+	if err = r.db.Where(condition, params...).Order(sortCondition).Limit(pageSize).Offset(offset).Joins("LEFT JOIN posts_tags on posts_tags.post_id = posts.id").Joins("LEFT JOIN tags on posts_tags.tag_id = tags.id").Find(&posts).Error; err != nil {
 		err = fmt.Errorf("find all posts: %w", err)
 		return
 	}
