@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"testing"
 	"time"
 
@@ -312,7 +313,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		{
 			name: "正常に投稿を取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts, nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts, nil)
 			},
 			params:   nil,
 			wantCode: http.StatusOK,
@@ -320,7 +321,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		{
 			name: "投稿が0件の時はhttp.StatusNotFoundを返す",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, entity.ErrPostNotFound)
 			},
 			params:   nil,
 			wantCode: http.StatusNotFound,
@@ -328,7 +329,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		{
 			name: "投稿の取得に失敗した場合はStatusInternalServerErrorエラーが返る",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
 			},
 			params:   nil,
 			wantCode: http.StatusInternalServerError,
@@ -336,7 +337,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		{
 			name: "ページングを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
 			},
 			params: []struct {
 				name  string
@@ -355,7 +356,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		{
 			name: "tagを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
 			},
 			params: []struct {
 				name  string
@@ -370,7 +371,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		}, {
 			name: "is-draftを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
 			},
 			params: []struct {
 				name  string
@@ -430,6 +431,25 @@ func TestPostHandler_GetPosts(t *testing.T) {
 				},
 			},
 			wantCode: http.StatusBadRequest,
+		},
+		{
+			name: "sortを指定した時も正しく取得できる",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				sort.Slice(existsPosts, func(i, j int) bool {
+					return existsPosts[i].CreatedAt.After(existsPosts[j].CreatedAt)
+				})
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), "created_at desc").Return(existsPosts, nil)
+			},
+			params: []struct {
+				name  string
+				value string
+			}{
+				{
+					"sort",
+					"-createdAt",
+				},
+			},
+			wantCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {

@@ -379,7 +379,7 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 		{
 			name: "postDTOsを返すこと",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts, nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts, nil)
 			},
 			want: []*dto.PostDTO{
 				{
@@ -410,7 +410,7 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 		{
 			name: "FindAllがエラーを返した時はpostDTOsが空であること",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
 			},
 			want:    nil,
 			wantErr: true,
@@ -428,7 +428,7 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 			}
 
 			// このGetPostsの責務はパラメータを受け取ってpostDTOsを返すだけなのでパラメータの中身はなんでも良い(はず)
-			got, err := p.GetPosts(0, 0, "", []interface{}{})
+			got, err := p.GetPosts(0, 0, "", []interface{}{}, "")
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetPosts() error = %v, wantErr %v", err, tt.wantErr)
