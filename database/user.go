@@ -51,9 +51,8 @@ func (r *UserRepository) Create(user *entity.User) error {
 	return nil
 }
 
-func (r *UserRepository) Update(user *entity.User) error {
-
-	if err := r.db.Select("*").Updates(user).Error; err != nil {
+func (r *UserRepository) UpdateLastLoggedinAt(user *entity.User) error {
+	if err := r.db.Model(user).Update("last_loggedin_at", user.LastLoggedinAt).Error; err != nil {
 		return fmt.Errorf("update user: %w", err)
 	}
 	return nil

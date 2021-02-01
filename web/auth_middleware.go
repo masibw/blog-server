@@ -3,6 +3,7 @@ package web
 import (
 	"unsafe"
 
+	"github.com/Songmu/flextime"
 	"github.com/masibw/blog-server/constant"
 
 	"github.com/masibw/blog-server/log"
@@ -44,6 +45,12 @@ func (m *AuthMiddleware) Authenticate(c *gin.Context) (interface{}, error) {
 
 	diff := bcrypt.CompareHashAndPassword([]byte(user.Password), password)
 	if user.MailAddress == mailAddress && diff == nil {
+		user.LastLoggedinAt = flextime.Now()
+		err := m.userUC.UpdateLastLoggedinAt(user)
+		if err != nil {
+			logger.Errorf("admin user update last_loggedin_at failed mailAddress=%v :%v", user.MailAddress, err)
+			return nil, err
+		}
 		return user, nil
 	}
 	return nil, jwt.ErrFailedAuthentication

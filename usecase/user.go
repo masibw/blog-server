@@ -54,6 +54,18 @@ func (p *UserUseCase) GetUserByMailAddress(mailAddress string) (userDTO *dto.Use
 	return
 }
 
+func (p *UserUseCase) UpdateLastLoggedinAt(userDTO *dto.UserDTO) (err error) {
+	user := &entity.User{
+		ID:             userDTO.ID,
+		LastLoggedinAt: userDTO.LastLoggedinAt}
+	err = p.userRepository.UpdateLastLoggedinAt(user)
+	if err != nil {
+		err = fmt.Errorf("update user: %w", err)
+		return
+	}
+	return
+}
+
 func (p *UserUseCase) DeleteUserByMailAddress(mailAddress string) (err error) {
 	err = p.userRepository.DeleteByMailAddress(mailAddress)
 	if err != nil {

@@ -5,9 +5,10 @@
 package mock_repository
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
-	reflect "reflect"
 )
 
 // MockPost is a mock of Post interface
@@ -95,7 +96,7 @@ func (mr *MockPostMockRecorder) Create(post interface{}) *gomock.Call {
 // Update mocks base method
 func (m *MockPost) Update(post *entity.Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", post)
+	ret := m.ctrl.Call(m, "UpdateLastLoggedinAt", post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -103,7 +104,7 @@ func (m *MockPost) Update(post *entity.Post) error {
 // Update indicates an expected call of Update
 func (mr *MockPostMockRecorder) Update(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPost)(nil).Update), post)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLastLoggedinAt", reflect.TypeOf((*MockPost)(nil).Update), post)
 }
 
 // Delete mocks base method

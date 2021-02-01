@@ -39,26 +39,29 @@ func TestAuthMiddleware_Authenticate(t *testing.T) {
 		wantErr               error
 	}{
 		{
-			name: "正常に認証できる",
+			name: "正常に認証でき,last_loggedin_atが更新されていること",
 			prepareMockUserRepoFn: func(mock *mock_repository.MockUser) {
 				mock.EXPECT().FindByMailAddress("test@example.com").Return(&entity.User{
-					ID:          "abcdefghijklmnopqrstuvwxyz",
-					MailAddress: "test@example.com",
-					Password:    "$2a$12$MdZRSm..1nFoRkBUqb1SE.Epo8J34q1rGDZkT/vv0.VNgDViQNQPi",
-					CreatedAt:   flextime.Now(),
-					UpdatedAt:   flextime.Now(),
+					ID:             "abcdefghijklmnopqrstuvwxyz",
+					MailAddress:    "test@example.com",
+					Password:       "$2a$12$MdZRSm..1nFoRkBUqb1SE.Epo8J34q1rGDZkT/vv0.VNgDViQNQPi",
+					CreatedAt:      flextime.Now().Add(-time.Second),
+					UpdatedAt:      flextime.Now().Add(-time.Second),
+					LastLoggedinAt: flextime.Now().Add(-time.Second),
 				}, nil)
+				mock.EXPECT().UpdateLastLoggedinAt(gomock.Any()).Return(nil)
 			},
 			body: `{
 			  "mailAddress":"test@example.com",
 			  "password":"test"
 			}`,
 			want: &dto.UserDTO{
-				ID:          "abcdefghijklmnopqrstuvwxyz",
-				MailAddress: "test@example.com",
-				Password:    "$2a$12$MdZRSm..1nFoRkBUqb1SE.Epo8J34q1rGDZkT/vv0.VNgDViQNQPi",
-				CreatedAt:   flextime.Now(),
-				UpdatedAt:   flextime.Now(),
+				ID:             "abcdefghijklmnopqrstuvwxyz",
+				MailAddress:    "test@example.com",
+				Password:       "$2a$12$MdZRSm..1nFoRkBUqb1SE.Epo8J34q1rGDZkT/vv0.VNgDViQNQPi",
+				CreatedAt:      flextime.Now().Add(-time.Second),
+				UpdatedAt:      flextime.Now().Add(-time.Second),
+				LastLoggedinAt: flextime.Now(),
 			},
 			wantCode: http.StatusCreated,
 			wantErr:  nil,

@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
+
 	"github.com/google/go-cmp/cmp"
 
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
@@ -79,32 +81,42 @@ func TestUserRepository_FindByID(t *testing.T) {
 	tx.Rollback()
 }
 
-func TestUserRepository_Update(t *testing.T) {
+func TestUserRepository_UpdateLastLoggedinAt(t *testing.T) {
 	tx := db.Begin()
 
-	if err := tx.Create(&entity.User{
+	existUser := &entity.User{
 		ID:             "abcdefghijklmnopqrstuvwxyz",
 		MailAddress:    "new_mailAddress",
 		CreatedAt:      flextime.Now(),
 		UpdatedAt:      flextime.Now(),
 		LastLoggedinAt: flextime.Now(),
-	}).Error; err != nil {
+	}
+
+	if err := tx.Create(existUser).Error; err != nil {
 		t.Fatal(err)
 	}
 
 	tests := []struct {
 		name    string
 		user    *entity.User
+		want    *entity.User
 		wantErr error
 	}{
 		{
-			name: "ユーザーを正常に更新できる",
+			name: "ユーザーのLastLoggedinAtだけを正常に更新できる",
 			user: &entity.User{
 				ID:             "abcdefghijklmnopqrstuvwxyz",
 				MailAddress:    "new_mailAddress",
 				Password:       "new_password",
 				CreatedAt:      time.Time{},
 				UpdatedAt:      time.Time{},
+				LastLoggedinAt: time.Time{},
+			},
+			want: &entity.User{
+				ID:             "abcdefghijklmnopqrstuvwxyz",
+				MailAddress:    "new_mailAddress",
+				CreatedAt:      flextime.Now(),
+				UpdatedAt:      flextime.Now(),
 				LastLoggedinAt: time.Time{},
 			},
 			wantErr: nil,
@@ -114,8 +126,16 @@ func TestUserRepository_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &UserRepository{db: tx}
-			if err := r.Update(tt.user); !errors.Is(err, tt.wantErr) {
-				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
+			if err := r.UpdateLastLoggedinAt(tt.user); !errors.Is(err, tt.wantErr) {
+				t.Errorf("UpdateLastLoggedinAt() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			got := &entity.User{ID: tt.want.ID}
+			err := tx.First(&got).Error
+			if err != nil {
+				t.Error(err)
+			}
+			if diff := cmp.Diff(tt.want, got, cmpopts.EquateApproxTime(time.Second)); diff != "" {
+				t.Errorf("Authenticate() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
