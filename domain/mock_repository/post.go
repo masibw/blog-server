@@ -5,10 +5,9 @@
 package mock_repository
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
+	reflect "reflect"
 )
 
 // MockPost is a mock of Post interface
@@ -96,7 +95,7 @@ func (mr *MockPostMockRecorder) Create(post interface{}) *gomock.Call {
 // Update mocks base method
 func (m *MockPost) Update(post *entity.Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateLastLoggedinAt", post)
+	ret := m.ctrl.Call(m, "Update", post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -104,7 +103,7 @@ func (m *MockPost) Update(post *entity.Post) error {
 // Update indicates an expected call of Update
 func (mr *MockPostMockRecorder) Update(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLastLoggedinAt", reflect.TypeOf((*MockPost)(nil).Update), post)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPost)(nil).Update), post)
 }
 
 // Delete mocks base method
@@ -119,4 +118,19 @@ func (m *MockPost) Delete(id string) error {
 func (mr *MockPostMockRecorder) Delete(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockPost)(nil).Delete), id)
+}
+
+// Count mocks base method
+func (m *MockPost) Count(condition string, params []interface{}) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Count", condition, params)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Count indicates an expected call of Count
+func (mr *MockPostMockRecorder) Count(condition, params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockPost)(nil).Count), condition, params)
 }

@@ -123,6 +123,7 @@ func TestTagUseCase_GetTags(t *testing.T) {
 			name: "tagDTOsを返すこと",
 			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsTags, nil)
+				mock.EXPECT().Count().Return(len(existsTags), nil)
 			},
 			want: []*dto.TagDTO{
 				{
@@ -161,10 +162,14 @@ func TestTagUseCase_GetTags(t *testing.T) {
 			}
 
 			// このGetTagsの責務はパラメータを受け取ってtagDTOsを返すだけなのでパラメータの中身はなんでも良い(はず)
-			got, err := p.GetTags(0, 0)
+			got, count, err := p.GetTags(0, 0)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetTags() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if diff := cmp.Diff(len(tt.want), count); diff != "" {
+				t.Errorf("GetTags() mismatch (-want +got):\n%s", cmp.Diff(tt.want, got))
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {

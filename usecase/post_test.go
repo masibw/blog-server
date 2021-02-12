@@ -380,6 +380,7 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 			name: "postDTOsを返すこと",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts, nil)
+				mock.EXPECT().Count(gomock.Any(), gomock.Any()).Return(len(existsPosts), nil)
 			},
 			want: []*dto.PostDTO{
 				{
@@ -428,10 +429,13 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 			}
 
 			// このGetPostsの責務はパラメータを受け取ってpostDTOsを返すだけなのでパラメータの中身はなんでも良い(はず)
-			got, err := p.GetPosts(0, 0, "", []interface{}{}, "")
+			got, count, err := p.GetPosts(0, 0, "", []interface{}{}, "")
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetPosts() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if diff := cmp.Diff(len(tt.want), count); diff != "" {
+				t.Errorf("GetPosts() mismatch (-want +got):\n%s", cmp.Diff(tt.want, got))
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {

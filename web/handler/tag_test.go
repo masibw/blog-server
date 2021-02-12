@@ -130,6 +130,7 @@ func TestTagHandler_GetTags(t *testing.T) {
 			name: "正常にタグを取得できる",
 			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsTags, nil)
+				mock.EXPECT().Count().Return(len(existsTags), nil)
 			},
 			params:   nil,
 			wantCode: http.StatusOK,
@@ -146,6 +147,7 @@ func TestTagHandler_GetTags(t *testing.T) {
 			name: "タグの取得に失敗した場合はStatusInternalServerErrorエラーが返る",
 			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
+
 			},
 			params:   nil,
 			wantCode: http.StatusInternalServerError,
@@ -154,6 +156,7 @@ func TestTagHandler_GetTags(t *testing.T) {
 			name: "ページングを指定した時も正しく取得できる",
 			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsTags[1:], nil)
+				mock.EXPECT().Count().Return(len(existsTags), nil)
 			},
 			params: []struct {
 				name  string

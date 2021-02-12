@@ -91,11 +91,17 @@ func (p *PostUseCase) UpdatePost(postDTO *dto.PostDTO) (*dto.PostDTO, error) {
 	return post.ConvertToDTO(), nil
 }
 
-func (p *PostUseCase) GetPosts(offset, pageSize int, condition string, params []interface{}, sortCondition string) (postDTOs []*dto.PostDTO, err error) {
+func (p *PostUseCase) GetPosts(offset, pageSize int, condition string, params []interface{}, sortCondition string) (postDTOs []*dto.PostDTO, count int, err error) {
 	var posts []*entity.Post
 	posts, err = p.postRepository.FindAll(offset, pageSize, condition, params, sortCondition)
 	if err != nil {
 		err = fmt.Errorf("get posts: %w", err)
+		return
+	}
+
+	count, err = p.postRepository.Count(condition, params)
+	if err != nil {
+		err = fmt.Errorf("count posts: %w", err)
 		return
 	}
 

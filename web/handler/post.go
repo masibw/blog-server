@@ -227,7 +227,7 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 	}
 
 	condition := strings.Join(conditions, " AND ")
-	posts, err := p.postUC.GetPosts(offset, pageSize, condition, params, sortCondition)
+	posts, count, err := p.postUC.GetPosts(offset, pageSize, condition, params, sortCondition)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get posts not found", err)
@@ -238,9 +238,9 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": entity.ErrInternalServerError.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"posts": posts,
+		"count": count,
 	})
 }
 

@@ -164,7 +164,7 @@ func TestPostRepository_Update(t *testing.T) {
 
 	tx.Rollback()
 }
-func TestPostRepository_Store(t *testing.T) {
+func TestPostRepository_Create(t *testing.T) {
 	tx := db.Begin()
 
 	tests := []struct {
@@ -655,7 +655,7 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("FindByID() mismatch (-want +got):\n%s", diff)
+				t.Errorf("FindAll() mismatch (-want +got):\n%s", diff)
 			}
 
 			if tt.existPostsTags != nil {
@@ -739,6 +739,247 @@ func TestPostRepository_Delete(t *testing.T) {
 
 			//TODO 削除したことを確かめるテスト
 
+		})
+	}
+
+	tx.Rollback()
+}
+
+func TestPostRepository_Count(t *testing.T) { // nolint:gocognit
+	tx := db.Begin()
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	tests := []struct {
+		name           string
+		existPosts     []*entity.Post
+		existTag       *entity.Tag
+		existPostsTags *entity.PostsTags
+		condition      string
+		params         []interface{}
+		want           int
+		wantErr        error
+	}{
+		{
+			name: "存在する投稿を正常に全件取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy1",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy2",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy3",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			condition: "",
+			params:    []interface{}{},
+			want:      3,
+			wantErr:   nil,
+		}, {
+			name: "is-draftパラメータを適用して取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy1",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy2",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy3",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      true,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			condition: "is_draft = ?",
+			params:    []interface{}{true},
+			want:      1,
+			wantErr:   nil,
+		},
+		{
+			name: "ページネーションを適用して取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy1",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy2",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy3",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			condition: "",
+			params:    []interface{}{},
+			want:      3,
+			wantErr:   nil,
+		},
+		{
+			name: "tagパラメータを適用して取得できる",
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy5",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy6",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink2",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}, {
+				ID:           "abcdefghijklmnopqrstuvwxy7",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink3",
+				IsDraft:      true,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			existTag: &entity.Tag{
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				Name:      "new_tag",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
+			existPostsTags: &entity.PostsTags{
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				PostID:    "abcdefghijklmnopqrstuvwxy5",
+				TagID:     "abcdefghijklmnopqrstuvwxy2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
+			condition: "tags.name = ?",
+			params:    []interface{}{"new_tag"},
+			want:      1,
+			wantErr:   nil,
+		},
+		{
+			name:       "投稿が存在しない場合は0を返す",
+			existPosts: nil,
+			want:       0,
+			wantErr:    nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.existPosts != nil {
+				if err := tx.Debug().Create(tt.existPosts).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tt.existTag != nil {
+				if err := tx.Debug().Create(tt.existTag).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tt.existPostsTags != nil {
+				if err := tx.Debug().Create(tt.existPostsTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+			r := &PostRepository{db: tx.Debug()}
+			got, err := r.Count(tt.condition, tt.params)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("Count()  error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Count() mismatch (-want +got):\n%s", diff)
+			}
+
+			if tt.existPostsTags != nil {
+				if err := tx.Delete(tt.existPostsTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			if tt.existTag != nil {
+				if err := tx.Delete(tt.existTag).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			if tt.existPosts != nil {
+				if err := tx.Delete(tt.existPosts).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
 		})
 	}
 

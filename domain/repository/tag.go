@@ -8,4 +8,5 @@ type Tag interface {
 	FindByName(name string) (*entity.Tag, error)
 	Store(tag *entity.Tag) error
 	Delete(id string) error
+	Count() (int, error)
 }
