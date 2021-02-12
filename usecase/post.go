@@ -110,9 +110,9 @@ func (p *PostUseCase) GetPosts(offset, pageSize int, condition string, params []
 	return
 }
 
-func (p *PostUseCase) GetPost(id string) (postDTO *dto.PostDTO, err error) {
+func (p *PostUseCase) GetPost(permalink string) (postDTO *dto.PostDTO, err error) {
 	var post *entity.Post
-	post, err = p.postRepository.FindByID(id)
+	post, err = p.postRepository.FindByPermalink(permalink)
 	if err != nil {
 		err = fmt.Errorf("get post: %w", err)
 		return

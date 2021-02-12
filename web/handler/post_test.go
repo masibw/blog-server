@@ -514,32 +514,32 @@ func TestPostHandler_GetPost(t *testing.T) {
 	tests := []struct {
 		name                  string
 		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
-		ID                    string
+		permalink             string
 		wantCode              int
 	}{
 		{
 			name: "正常に投稿を取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByID(gomock.Any()).Return(existsPost, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(existsPost, nil)
 			},
-			ID:       "abcdefghijklmnopqrstuvwxyz",
-			wantCode: http.StatusOK,
+			permalink: "new_permalink",
+			wantCode:  http.StatusOK,
 		},
 		{
 			name: "投稿がない場合はStatusNotFoundを返す",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByID(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
 			},
-			ID:       "not_found",
-			wantCode: http.StatusNotFound,
+			permalink: "not_found",
+			wantCode:  http.StatusNotFound,
 		},
 		{
 			name: "投稿の取得に失敗した場合はStatusInternalServerErrorエラーが返る",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByID(gomock.Any()).Return(nil, errors.New("dummy error"))
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(nil, errors.New("dummy error"))
 			},
-			ID:       "not_found",
-			wantCode: http.StatusInternalServerError,
+			permalink: "not_found",
+			wantCode:  http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
@@ -555,7 +555,7 @@ func TestPostHandler_GetPost(t *testing.T) {
 			// HTTPRequestをテストするために必要な部分
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
-			req, _ := http.NewRequest(http.MethodGet, "/api/v1/posts/"+tt.ID, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/posts/"+tt.permalink, nil)
 			req.Header.Set("Content-Type", "application/json")
 			c.Request = req
 
