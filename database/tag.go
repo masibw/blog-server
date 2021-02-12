@@ -73,3 +73,14 @@ func (r *TagRepository) Delete(id string) error {
 	}
 	return nil
 }
+
+func (r *TagRepository) Count() (count int, err error) {
+	var count64 int64
+	if err = r.db.Model(&entity.Tag{}).Distinct().Count(&count64).Error; err != nil {
+		err = fmt.Errorf("find all posts: %w", err)
+		return
+	}
+	// int64を溢れることは運用的にないのでキャストしてしまう
+	count = int(count64)
+	return
+}

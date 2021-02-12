@@ -76,7 +76,7 @@ func (p *TagHandler) GetTags(c *gin.Context) {
 
 		offset = (page - 1) * pageSize
 	}
-	tags, err := p.tagUC.GetTags(offset, pageSize)
+	tags, count, err := p.tagUC.GetTags(offset, pageSize)
 	if err != nil {
 		if errors.Is(err, entity.ErrTagNotFound) {
 			logger.Debug("get tags not found", err)
@@ -89,7 +89,8 @@ func (p *TagHandler) GetTags(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"tags": tags,
+		"tags":  tags,
+		"count": count,
 	})
 }
 

@@ -9,4 +9,5 @@ type Post interface {
 	Create(post *entity.Post) error
 	Update(post *entity.Post) error
 	Delete(id string) error
+	Count(condition string, params []interface{}) (int, error)
 }

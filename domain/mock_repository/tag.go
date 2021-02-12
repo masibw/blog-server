@@ -5,10 +5,9 @@
 package mock_repository
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
+	reflect "reflect"
 )
 
 // MockTag is a mock of Tag interface
@@ -80,17 +79,17 @@ func (mr *MockTagMockRecorder) FindByName(name interface{}) *gomock.Call {
 }
 
 // Store mocks base method
-func (m *MockTag) Store(post *entity.Tag) error {
+func (m *MockTag) Store(tag *entity.Tag) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", post)
+	ret := m.ctrl.Call(m, "Store", tag)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Store indicates an expected call of Store
-func (mr *MockTagMockRecorder) Store(post interface{}) *gomock.Call {
+func (mr *MockTagMockRecorder) Store(tag interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTag)(nil).Store), post)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockTag)(nil).Store), tag)
 }
 
 // Delete mocks base method
@@ -105,4 +104,19 @@ func (m *MockTag) Delete(id string) error {
 func (mr *MockTagMockRecorder) Delete(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTag)(nil).Delete), id)
+}
+
+// Count mocks base method
+func (m *MockTag) Count() (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Count")
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Count indicates an expected call of Count
+func (mr *MockTagMockRecorder) Count() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockTag)(nil).Count))
 }

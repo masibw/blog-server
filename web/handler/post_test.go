@@ -348,6 +348,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			name: "正常に投稿を取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts, nil)
+				mock.EXPECT().Count(gomock.Any(), gomock.Any()).Return(len(existsPosts), nil)
 			},
 			params:   nil,
 			wantCode: http.StatusOK,
@@ -372,6 +373,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			name: "ページングを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+				mock.EXPECT().Count(gomock.Any(), gomock.Any()).Return(len(existsPosts), nil)
 			},
 			params: []struct {
 				name  string
@@ -391,6 +393,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			name: "tagを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+				mock.EXPECT().Count(gomock.Any(), gomock.Any()).Return(len(existsPosts), nil)
 			},
 			params: []struct {
 				name  string
@@ -406,6 +409,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			name: "is-draftを指定した時も正しく取得できる",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsPosts[1:], nil)
+				mock.EXPECT().Count(gomock.Any(), gomock.Any()).Return(len(existsPosts), nil)
 			},
 			params: []struct {
 				name  string
@@ -473,6 +477,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 					return existsPosts[i].CreatedAt.After(existsPosts[j].CreatedAt)
 				})
 				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), "created_at desc").Return(existsPosts, nil)
+				mock.EXPECT().Count(gomock.Any(), gomock.Any()).Return(len(existsPosts), nil)
 			},
 			params: []struct {
 				name  string

@@ -81,3 +81,14 @@ func (r *PostRepository) Delete(id string) error {
 	}
 	return nil
 }
+
+func (r *PostRepository) Count(condition string, params []interface{}) (count int, err error) {
+	var count64 int64
+	if err = r.db.Model(&entity.Post{}).Distinct().Where(condition, params...).Joins("LEFT JOIN posts_tags on posts_tags.post_id = posts.id").Joins("LEFT JOIN tags on posts_tags.tag_id = tags.id").Count(&count64).Error; err != nil {
+		err = fmt.Errorf("find all posts: %w", err)
+		return
+	}
+	// int64を溢れることは運用的にないのでキャストしてしまう
+	count = int(count64)
+	return
+}

@@ -304,3 +304,101 @@ func TestTagRepository_Delete(t *testing.T) {
 
 	tx.Rollback()
 }
+
+func TestTagRepository_Count(t *testing.T) {
+	tx := db.Begin()
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	defer flextime.Restore()
+
+	tests := []struct {
+		name      string
+		existTags []*entity.Tag
+		condition string
+		params    []interface{}
+		want      int
+		wantErr   error
+	}{
+		{
+			name: "存在するタグを正常に全件取得できる",
+			existTags: []*entity.Tag{{
+				ID:        "abcdefghijklmnopqrstuvwxy1",
+				Name:      "new_tag",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				Name:      "new_tag2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy3",
+				Name:      "new_tag3",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}},
+			condition: "",
+			params:    []interface{}{},
+			want:      3,
+			wantErr:   nil,
+		}, {
+			name: "ページネーションを適用して取得できる",
+			existTags: []*entity.Tag{{
+				ID:        "abcdefghijklmnopqrstuvwxy1",
+				Name:      "new_tag",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				Name:      "new_tag2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy3",
+				Name:      "new_tag3",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}},
+			condition: "",
+			params:    []interface{}{},
+			want:      3,
+			wantErr:   nil,
+		}, {
+			name:      "タグが存在しない場合は0を返す",
+			existTags: nil,
+			want:      0,
+			wantErr:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.existTags != nil {
+				if err := tx.Create(tt.existTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			r := &TagRepository{db: tx}
+			got, err := r.Count()
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("Count()  error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Count() mismatch (-want +got):\n%s", diff)
+			}
+
+			if tt.existTags != nil {
+				if err := tx.Delete(tt.existTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+		})
+	}
+
+	tx.Rollback()
+}
