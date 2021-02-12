@@ -238,8 +238,8 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 
 func (p *PostHandler) GetPost(c *gin.Context) {
 	logger := log.GetLogger()
-	id := c.Param("id")
-	post, err := p.postUC.GetPost(id)
+	permalink := c.Param("permalink")
+	post, err := p.postUC.GetPost(permalink)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get post not found", err)

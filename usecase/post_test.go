@@ -465,14 +465,14 @@ func TestPostUseCase_GetPost(t *testing.T) {
 	tests := []struct {
 		name                  string
 		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
-		ID                    string
+		permalink             string
 		want                  *dto.PostDTO
 		wantErr               bool
 	}{
 		{
 			name: "postDTOを返すこと",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByID(gomock.Any()).Return(existsPost, nil)
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(existsPost, nil)
 			},
 			want: &dto.PostDTO{
 				ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -485,17 +485,17 @@ func TestPostUseCase_GetPost(t *testing.T) {
 				UpdatedAt:    flextime.Now(),
 				PublishedAt:  flextime.Now(),
 			},
-			ID:      "abcdefghijklmnopqrstuvwxyz",
-			wantErr: false,
+			permalink: "new_permalink",
+			wantErr:   false,
 		},
 		{
-			name: "FindByIDがエラーを返した時はpostDTOが空であること",
+			name: "FindByPermalinkがエラーを返した時はpostDTOが空であること",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
-				mock.EXPECT().FindByID("not_found").Return(nil, entity.ErrPostNotFound)
+				mock.EXPECT().FindByPermalink("not_found").Return(nil, entity.ErrPostNotFound)
 			},
-			ID:      "not_found",
-			want:    nil,
-			wantErr: true,
+			permalink: "not_found",
+			want:      nil,
+			wantErr:   true,
 		},
 	}
 
@@ -509,7 +509,7 @@ func TestPostUseCase_GetPost(t *testing.T) {
 				postRepository: mr,
 			}
 
-			got, err := p.GetPost(tt.ID)
+			got, err := p.GetPost(tt.permalink)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetPost() error = %v, wantErr %v", err, tt.wantErr)

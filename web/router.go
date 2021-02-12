@@ -74,7 +74,7 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 
 	posts := v1.Group("/posts")
 	posts.GET("", postHandler.GetPosts)
-	posts.GET(":id", postHandler.GetPost)
+	posts.GET(":permalink", postHandler.GetPost)
 
 	posts.Use(authMiddleware.MiddlewareFunc())
 	{
