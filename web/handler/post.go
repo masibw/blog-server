@@ -104,6 +104,14 @@ func (p *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
+	if req.Tags == nil || len(req.Tags) == 0 {
+		logger.Debug("tags nil")
+		c.JSON(http.StatusOK, gin.H{
+			"post": post,
+			"tags": nil,
+		})
+		return
+	}
 	var tags []*entity.Tag
 	tags, err = p.postsTagsService.LinkPostTags(req.Post.ID, req.Tags)
 	if err != nil {
