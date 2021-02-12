@@ -135,6 +135,40 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 			]
 			}`,
 			wantCode: http.StatusOK,
+		},
+		{
+			name: "関連するタグがなくても正常に投稿を更新できる",
+			prepareMockRepoFn: func(mockTags *mock_repository.MockTag, mockPosts *mock_repository.MockPost, mockPT *mock_repository.MockPostsTags) {
+				mockPosts.EXPECT().FindByID(gomock.Any()).Return(&entity.Post{
+					ID:           "abcdefghijklmnopqrstuvwxyz",
+					Title:        "new_post",
+					ThumbnailURL: "new_thumbnail_url",
+					Content:      "new_content",
+					Permalink:    "new_permalink",
+					IsDraft:      true,
+					CreatedAt:    flextime.Now(),
+					UpdatedAt:    flextime.Now(),
+					PublishedAt:  time.Time{},
+				}, nil)
+				mockPosts.EXPECT().FindByPermalink(gomock.Any()).Return(nil, entity.ErrPostNotFound)
+				mockPosts.EXPECT().Update(gomock.Any()).Return(nil)
+			},
+			ID: "abcdefghijklmnopqrstuvwxyz",
+			body: `{
+				"post": {
+					"id": "abcdefghijklmnopqrstuvwxyz",
+					"title": "new_post",
+					"thumbnailUrl": "new_thumbnail_url",
+					"content": "new_content",
+					"permalink": "new_permalink",
+					"isDraft": false,
+					"createdAt": "2021-01-24T17:49:01+09:00",
+					"updatedAt": "2021-01-27T14:48:55+09:00",
+					"publishedAt": "0001-01-01T00:00:00Z"
+				},
+				"tags": []
+			}`,
+			wantCode: http.StatusOK,
 		}, {
 			name: "NULLが許容されるフィールドが空でも正常に投稿を更新できる",
 			prepareMockRepoFn: func(mockTags *mock_repository.MockTag, mockPosts *mock_repository.MockPost, mockPT *mock_repository.MockPostsTags) {

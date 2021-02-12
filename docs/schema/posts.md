@@ -10,13 +10,14 @@ CREATE TABLE `posts` (
   `id` char(26) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `thumbnail_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `permalink` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_draft` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `published_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `permalink` (`permalink`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ```
 
@@ -40,6 +41,7 @@ CREATE TABLE `posts` (
 
 | Name | Type | Definition |
 | ---- | ---- | ---------- |
+| permalink | UNIQUE | UNIQUE KEY permalink (permalink) |
 | PRIMARY | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes
@@ -47,6 +49,7 @@ CREATE TABLE `posts` (
 | Name | Definition |
 | ---- | ---------- |
 | PRIMARY | PRIMARY KEY (id) USING BTREE |
+| permalink | UNIQUE KEY permalink (permalink) USING BTREE |
 
 ## Relations
 
