@@ -31,7 +31,11 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 	e.Use(gin.Recovery())
 
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"*"}
+	if config.IsLocal() {
+		corsConfig.AllowOrigins = []string{"*"}
+	} else {
+		corsConfig.AllowOrigins = []string{"mesimasi.com"}
+	}
 	e.Use(cors.New(corsConfig))
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
