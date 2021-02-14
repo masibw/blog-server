@@ -55,3 +55,4 @@ volumes:
 networks:
   blog-network:
     driver: bridge
+    external: true

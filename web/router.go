@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/Songmu/flextime"
-	"github.com/masibw/blog-server/config"
+	"github.com/gin-contrib/cors"
 	"github.com/masibw/blog-server/constant"
 	"github.com/masibw/blog-server/log"
 
@@ -14,6 +14,7 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/masibw/blog-server/config"
 	"github.com/masibw/blog-server/usecase"
 	"github.com/masibw/blog-server/web/handler"
 )
@@ -28,6 +29,10 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 	e = gin.New()
 	e.Use(gin.Logger())
 	e.Use(gin.Recovery())
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"*"}
+	e.Use(cors.New(corsConfig))
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           "authenticated zone",
@@ -58,9 +63,6 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 		logger.Fatal("JWT Error:" + err.Error())
 	}
 
-	e.POST("/login", authMiddleware.LoginHandler)
-	e.POST("/logout", authMiddleware.LogoutHandler)
-
 	postHandler := handler.NewPostHandler(postUC, postsTagsService)
 	tagHandler := handler.NewTagHandler(tagUC)
 
@@ -71,6 +73,9 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 	})
 
 	v1 := e.Group("/api/v1")
+
+	v1.POST("/login", authMiddleware.LoginHandler)
+	v1.POST("/logout", authMiddleware.LogoutHandler)
 
 	posts := v1.Group("/posts")
 	posts.GET("", postHandler.GetPosts)
