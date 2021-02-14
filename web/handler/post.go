@@ -247,7 +247,19 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 func (p *PostHandler) GetPost(c *gin.Context) {
 	logger := log.GetLogger()
 	permalink := c.Param("permalink")
-	post, err := p.postUC.GetPost(permalink)
+
+	isMarkdown := false
+	if c.Query("is-markdown") != "" {
+		var err error
+		isMarkdown, err = strconv.ParseBool(c.Query("is-markdown"))
+		if err != nil {
+			logger.Errorf("is-markdown invalid, %v : %v", c.Query("is-markdown"), err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	post, err := p.postUC.GetPost(permalink, isMarkdown)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get post not found", err)
