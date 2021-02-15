@@ -52,7 +52,7 @@ func (p *PostHandler) UpdatePost(c *gin.Context) {
 	type postReq struct {
 		ID           string    `json:"id" binding:"required"`
 		Title        string    `json:"title"`
-		ThumbnailURL string    `json:"thumbnailUrl" binding:"required"`
+		ThumbnailURL string    `json:"thumbnailUrl"`
 		Content      string    `json:"content" `
 		Permalink    string    `json:"permalink" `
 		IsDraft      *bool     `json:"isDraft" binding:"required"`
