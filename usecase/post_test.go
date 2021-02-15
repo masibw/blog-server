@@ -470,10 +470,30 @@ func TestPostUseCase_GetPost(t *testing.T) {
 		name                  string
 		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
 		permalink             string
+		isMarkdown            bool
 		want                  *dto.PostDTO
 		wantErr               bool
 	}{
 		{
+			name: "isMarkdownがtrueの時はmarkdownのままpostDTOを返すこと",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+				mock.EXPECT().FindByPermalink(gomock.Any()).Return(existsPost, nil)
+			},
+			want: &dto.PostDTO{
+				ID:           "abcdefghijklmnopqrstuvwxyz",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      func() *bool { b := false; return &b }(),
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			},
+			permalink:  "new_permalink",
+			isMarkdown: true,
+			wantErr:    false,
+		}, {
 			name: "postDTOを返すこと",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindByPermalink(gomock.Any()).Return(existsPost, nil)
@@ -489,17 +509,20 @@ func TestPostUseCase_GetPost(t *testing.T) {
 				UpdatedAt:    flextime.Now(),
 				PublishedAt:  flextime.Now(),
 			},
-			permalink: "new_permalink",
-			wantErr:   false,
+			permalink:  "new_permalink",
+			isMarkdown: false,
+			wantErr:    false,
 		},
+
 		{
 			name: "FindByPermalinkがエラーを返した時はpostDTOが空であること",
 			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
 				mock.EXPECT().FindByPermalink("not_found").Return(nil, entity.ErrPostNotFound)
 			},
-			permalink: "not_found",
-			want:      nil,
-			wantErr:   true,
+			permalink:  "not_found",
+			isMarkdown: false,
+			want:       nil,
+			wantErr:    true,
 		},
 	}
 
@@ -513,7 +536,7 @@ func TestPostUseCase_GetPost(t *testing.T) {
 				postRepository: mr,
 			}
 
-			got, err := p.GetPost(tt.permalink)
+			got, err := p.GetPost(tt.permalink, tt.isMarkdown)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetPost() error = %v, wantErr %v", err, tt.wantErr)

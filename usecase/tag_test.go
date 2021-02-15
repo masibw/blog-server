@@ -116,13 +116,15 @@ func TestTagUseCase_GetTags(t *testing.T) {
 	tests := []struct {
 		name                 string
 		prepareMockTagRepoFn func(mock *mock_repository.MockTag)
+		conditions           string
+		params               []interface{}
 		want                 []*dto.TagDTO
 		wantErr              bool
 	}{
 		{
 			name: "tagDTOsを返すこと",
 			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(existsTags, nil)
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(existsTags, nil)
 				mock.EXPECT().Count().Return(len(existsTags), nil)
 			},
 			want: []*dto.TagDTO{
@@ -142,12 +144,37 @@ func TestTagUseCase_GetTags(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "conditionsとparamsを適用して取得できる",
+			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]*entity.Tag{
+					{
+						ID:        "abcdefghijklmnopqrstuvwxyz",
+						Name:      "new_tag",
+						CreatedAt: flextime.Now(),
+						UpdatedAt: flextime.Now(),
+					},
+				}, nil)
+				mock.EXPECT().Count().Return(1, nil)
+			},
+			want: []*dto.TagDTO{
+				{
+					ID:        "abcdefghijklmnopqrstuvwxyz",
+					Name:      "new_tag",
+					CreatedAt: flextime.Now(),
+					UpdatedAt: flextime.Now(),
+				},
+			},
+			wantErr: false,
+		},
+		{
 			name: "FindAllがエラーを返した時はtagDTOsが空であること",
 			prepareMockTagRepoFn: func(mock *mock_repository.MockTag) {
-				mock.EXPECT().FindAll(gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
+				mock.EXPECT().FindAll(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("dummy error"))
 			},
-			want:    nil,
-			wantErr: true,
+			conditions: "",
+			params:     []interface{}{},
+			want:       nil,
+			wantErr:    true,
 		},
 	}
 
@@ -162,7 +189,7 @@ func TestTagUseCase_GetTags(t *testing.T) {
 			}
 
 			// このGetTagsの責務はパラメータを受け取ってtagDTOsを返すだけなのでパラメータの中身はなんでも良い(はず)
-			got, count, err := p.GetTags(0, 0)
+			got, count, err := p.GetTags(0, 0, "", []interface{}{})
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetTags() error = %v, wantErr %v", err, tt.wantErr)

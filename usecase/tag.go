@@ -39,9 +39,9 @@ func (p *TagUseCase) StoreTag(tagDTO *dto.TagDTO) (*dto.TagDTO, error) {
 	return tag.ConvertToDTO(), nil
 }
 
-func (p *TagUseCase) GetTags(offset, pageSize int) (tagDTOs []*dto.TagDTO, count int, err error) {
+func (p *TagUseCase) GetTags(offset, pageSize int, condition string, params []interface{}) (tagDTOs []*dto.TagDTO, count int, err error) {
 	var tags []*entity.Tag
-	tags, err = p.tagRepository.FindAll(offset, pageSize)
+	tags, err = p.tagRepository.FindAll(offset, pageSize, condition, params)
 	if err != nil {
 		err = fmt.Errorf("get tags: %w", err)
 		return
