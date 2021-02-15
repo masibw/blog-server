@@ -52,7 +52,7 @@ func (p *PostHandler) UpdatePost(c *gin.Context) {
 	type postReq struct {
 		ID           string    `json:"id" binding:"required"`
 		Title        string    `json:"title"`
-		ThumbnailURL string    `json:"thumbnailUrl" binding:"required"`
+		ThumbnailURL string    `json:"thumbnailUrl"`
 		Content      string    `json:"content" `
 		Permalink    string    `json:"permalink" `
 		IsDraft      *bool     `json:"isDraft" binding:"required"`
@@ -247,7 +247,19 @@ func (p *PostHandler) GetPosts(c *gin.Context) {
 func (p *PostHandler) GetPost(c *gin.Context) {
 	logger := log.GetLogger()
 	permalink := c.Param("permalink")
-	post, err := p.postUC.GetPost(permalink)
+
+	isMarkdown := false
+	if c.Query("is-markdown") != "" {
+		var err error
+		isMarkdown, err = strconv.ParseBool(c.Query("is-markdown"))
+		if err != nil {
+			logger.Errorf("is-markdown invalid, %v : %v", c.Query("is-markdown"), err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	post, err := p.postUC.GetPost(permalink, isMarkdown)
 	if err != nil {
 		if errors.Is(err, entity.ErrPostNotFound) {
 			logger.Debug("get post not found", err)

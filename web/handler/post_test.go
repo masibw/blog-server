@@ -554,7 +554,11 @@ func TestPostHandler_GetPost(t *testing.T) {
 		name                  string
 		prepareMockPostRepoFn func(mock *mock_repository.MockPost)
 		permalink             string
-		wantCode              int
+		params                []struct {
+			name  string
+			value string
+		}
+		wantCode int
 	}{
 		{
 			name: "正常に投稿を取得できる",
@@ -579,6 +583,19 @@ func TestPostHandler_GetPost(t *testing.T) {
 			},
 			permalink: "not_found",
 			wantCode:  http.StatusInternalServerError,
+		}, {
+			name: "is-markdownにboolに変換できない値が入っていた場合はStatusBadRequestを返す",
+			prepareMockPostRepoFn: func(mock *mock_repository.MockPost) {
+			},
+			params: []struct {
+				name  string
+				value string
+			}{{
+				"is-markdown",
+				"can't_parse",
+			},
+			},
+			wantCode: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
@@ -594,7 +611,15 @@ func TestPostHandler_GetPost(t *testing.T) {
 			// HTTPRequestをテストするために必要な部分
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
-			req, _ := http.NewRequest(http.MethodGet, "/api/v1/posts/"+tt.permalink, nil)
+
+			var queryParam string
+			for _, v := range tt.params {
+				queryParam += "&" + v.name + "=" + v.value
+			}
+			if queryParam != "" {
+				queryParam = "?" + queryParam[1:]
+			}
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/posts/"+tt.permalink+queryParam, nil)
 			req.Header.Set("Content-Type", "application/json")
 			c.Request = req
 
