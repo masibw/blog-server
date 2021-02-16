@@ -49,18 +49,18 @@ func (mr *MockTagMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method
-func (m *MockTag) FindAll(offset, pageSize int) ([]*entity.Tag, error) {
+func (m *MockTag) FindAll(offset, pageSize int, condition string, params []interface{}) ([]*entity.Tag, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAll", offset, pageSize)
+	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, condition, params)
 	ret0, _ := ret[0].([]*entity.Tag)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindAll indicates an expected call of FindAll
-func (mr *MockTagMockRecorder) FindAll(offset, pageSize interface{}) *gomock.Call {
+func (mr *MockTagMockRecorder) FindAll(offset, pageSize, condition, params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockTag)(nil).FindAll), offset, pageSize)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockTag)(nil).FindAll), offset, pageSize, condition, params)
 }
 
 // FindByName mocks base method

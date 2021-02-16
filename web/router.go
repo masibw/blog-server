@@ -36,7 +36,6 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 	} else {
 		corsConfig.AllowOrigins = []string{"mesimasi.com"}
 	}
-
 	e.Use(cors.New(corsConfig))
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{

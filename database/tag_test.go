@@ -117,7 +117,7 @@ func TestTagRepository_Store(t *testing.T) {
 	tx.Rollback()
 }
 
-func TestTagRepository_FindAll(t *testing.T) {
+func TestTagRepository_FindAll(t *testing.T) { // nolint:gocognit
 	tx := db.Begin()
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
@@ -127,14 +127,16 @@ func TestTagRepository_FindAll(t *testing.T) {
 	defer flextime.Restore()
 
 	tests := []struct {
-		name      string
-		existTags []*entity.Tag
-		offset    int
-		pageSize  int
-		condition string
-		params    []interface{}
-		want      []*entity.Tag
-		wantErr   error
+		name           string
+		existTags      []*entity.Tag
+		existPosts     []*entity.Post
+		existPostsTags *entity.PostsTags
+		offset         int
+		pageSize       int
+		condition      string
+		params         []interface{}
+		want           []*entity.Tag
+		wantErr        error
 	}{
 		{
 			name: "存在するタグを正常に全件取得できる",
@@ -209,6 +211,54 @@ func TestTagRepository_FindAll(t *testing.T) {
 				UpdatedAt: flextime.Now(),
 			}},
 			wantErr: nil,
+		},
+		{
+			name: "postフィルターを適用して取得できる",
+			existTags: []*entity.Tag{{
+				ID:        "abcdefghijklmnopqrstuvwxy1",
+				Name:      "new_tag",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				Name:      "new_tag2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}, {
+				ID:        "abcdefghijklmnopqrstuvwxy3",
+				Name:      "new_tag3",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}},
+			existPostsTags: &entity.PostsTags{
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				PostID:    "abcdefghijklmnopqrstuvwxy5",
+				TagID:     "abcdefghijklmnopqrstuvwxy2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			},
+			existPosts: []*entity.Post{{
+				ID:           "abcdefghijklmnopqrstuvwxy5",
+				Title:        "new_post",
+				ThumbnailURL: "new_thumbnail_url",
+				Content:      "new_content",
+				Permalink:    "new_permalink",
+				IsDraft:      false,
+				CreatedAt:    flextime.Now(),
+				UpdatedAt:    flextime.Now(),
+				PublishedAt:  flextime.Now(),
+			}},
+			offset:    0,
+			pageSize:  0,
+			condition: "posts.id = ?",
+			params:    []interface{}{"abcdefghijklmnopqrstuvwxy5"},
+			want: []*entity.Tag{{
+				ID:        "abcdefghijklmnopqrstuvwxy2",
+				Name:      "new_tag2",
+				CreatedAt: flextime.Now(),
+				UpdatedAt: flextime.Now(),
+			}},
+			wantErr: nil,
 		}, {
 			name:      "タグが存在しない場合はErrTagNotFoundを返す",
 			existTags: nil,
@@ -224,9 +274,19 @@ func TestTagRepository_FindAll(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
+			if tt.existPosts != nil {
+				if err := tx.Create(tt.existPosts).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tt.existPostsTags != nil {
+				if err := tx.Create(tt.existPostsTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
 
 			r := &TagRepository{db: tx}
-			got, err := r.FindAll(tt.offset, tt.pageSize)
+			got, err := r.FindAll(tt.offset, tt.pageSize, tt.condition, tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("FindAll()  error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -234,12 +294,23 @@ func TestTagRepository_FindAll(t *testing.T) {
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("FindByID() mismatch (-want +got):\n%s", diff)
 			}
+			if tt.existPostsTags != nil {
+				if err := tx.Delete(tt.existPostsTags).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
 
 			if tt.existTags != nil {
 				if err := tx.Delete(tt.existTags).Error; err != nil {
 					t.Fatal(err)
 				}
 			}
+			if tt.existPosts != nil {
+				if err := tx.Delete(tt.existPosts).Error; err != nil {
+					t.Fatal(err)
+				}
+			}
+
 		})
 	}
 

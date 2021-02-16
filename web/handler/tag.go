@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/masibw/blog-server/domain/entity"
 
@@ -76,7 +77,18 @@ func (p *TagHandler) GetTags(c *gin.Context) {
 
 		offset = (page - 1) * pageSize
 	}
-	tags, count, err := p.tagUC.GetTags(offset, pageSize)
+
+	conditions := make([]string, 0)
+	params := make([]interface{}, 0)
+
+	if c.Query("post") != "" {
+		postID := c.Query("post")
+		conditions = append(conditions, "posts.id = ?")
+		params = append(params, postID)
+	}
+	condition := strings.Join(conditions, " AND ")
+
+	tags, count, err := p.tagUC.GetTags(offset, pageSize, condition, params)
 	if err != nil {
 		if errors.Is(err, entity.ErrTagNotFound) {
 			logger.Debug("get tags not found", err)
