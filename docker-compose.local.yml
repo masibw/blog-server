@@ -39,6 +39,7 @@ services:
     depends_on:
       - db
     env_file:
+      - .env.secret
       - .env.local
     entrypoint:
       - dockerize

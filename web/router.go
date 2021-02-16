@@ -24,7 +24,7 @@ type login struct {
 	Password    string `form:"password" json:"password" binding:"required"`
 }
 
-func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *AuthMiddleware, postsTagsService *service.PostsTagsService) (e *gin.Engine) {
+func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, imageUC *usecase.ImageUseCase, authMW *AuthMiddleware, postsTagsService *service.PostsTagsService) (e *gin.Engine) {
 	logger := log.GetLogger()
 	e = gin.New()
 	e.Use(gin.Logger())
@@ -69,6 +69,7 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 
 	postHandler := handler.NewPostHandler(postUC, postsTagsService)
 	tagHandler := handler.NewTagHandler(tagUC)
+	imageHandler := handler.NewImageHandler(imageUC)
 
 	e.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -100,5 +101,12 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, authMW *A
 		tags.POST("", tagHandler.StoreTag)
 		tags.DELETE(":id", tagHandler.DeleteTag)
 	}
+
+	images := v1.Group("/images")
+	images.Use(authMiddleware.MiddlewareFunc())
+	{
+		images.GET("", imageHandler.GetPresignedURL)
+	}
+
 	return
 }
