@@ -21,7 +21,7 @@ jobs:
       - name: Get dependencies
         run: go mod download
       - name: Start test db
-        run: make up-test-db
+        run: make up-test
       - name: Wait for db connection
         run: sleep 10
       - name: Install richgo
