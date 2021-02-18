@@ -14,11 +14,11 @@ logs:
 	docker-compose -f docker-compose.local.yml logs ${T}
 
 .PHONY: up-test
-up-test-db:
+up-test:
 	docker run --rm --env-file=$(ENV_TEST_FILE) -v $(PWD)/build/db/my.cnf:/etc/mysql/conf.d/my.cnf  --name blog-server_test_db_1 -d -p 3306:3306 mysql:8.0
 
 .PHONY: down-test
-down-test-db:
+down-test:
 	docker stop blog-server_test_db_1
 
 .PHONY: test
