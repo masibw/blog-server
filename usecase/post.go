@@ -21,7 +21,6 @@ func NewPostUseCase(postRepository repository.Post) *PostUseCase {
 func (p *PostUseCase) CreatePost() (*dto.PostDTO, error) {
 	var post *entity.Post
 	var err error
-
 	post = entity.NewPost()
 
 	err = p.postRepository.Create(post)
