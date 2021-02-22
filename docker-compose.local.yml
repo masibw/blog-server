@@ -10,10 +10,10 @@ services:
       - "443:443"
     volumes:
       # Nginxの設定ファイルを上書きする
-      - ./build/nginx/conf/localhost.ssl.conf.erb:/var/lib/nginx-conf/localhost.ssl.conf.erb:ro
+      - ./build/nginx/conf/blog.local.ssl.conf.erb:/var/lib/nginx-conf/blog.local.ssl.conf.erb:ro
     environment:
       STAGE: local
-      DOMAINS: 'localhost => https://localhost'
+      DOMAINS: 'blog.local => https://blog.local'
     networks:
       - blog-network
 
