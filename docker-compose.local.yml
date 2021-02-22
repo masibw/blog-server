@@ -1,7 +1,7 @@
 version: '3'
 services:
   nginx:
-    image: steveltn/https-portal:1.7.3
+    image: steveltn/https-portal:1.17.5
     restart: always
     links:
       - app:app
@@ -10,7 +10,7 @@ services:
       - "443:443"
     volumes:
       # Nginxの設定ファイルを上書きする
-      - ./build/nginx/conf/localhost.ssl.conf.erb:/var/lib/nginx-conf/localhost.conf.erb:ro
+      - ./build/nginx/conf/localhost.ssl.conf.erb:/var/lib/nginx-conf/localhost.ssl.conf.erb:ro
     environment:
       STAGE: local
       DOMAINS: 'localhost => https://localhost'
