@@ -15,6 +15,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.4
 	github.com/oklog/ulid v1.3.1
 	github.com/russross/blackfriday/v2 v2.1.0
+	github.com/sanposhiho/gomockhandler v0.1.0 // indirect
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	gorm.io/driver/mysql v1.0.3

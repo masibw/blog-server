@@ -22,3 +22,19 @@ jobs:
         run: go get -u github.com/masibw/goone/cmd/goone
       - name: run goone
         run: go vet -vettool=`which goone` ./...
+
+  gomockhandler:
+    name: Check all mocks are up-to-date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go 1.12
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.6
+      - name: Install mockgen
+        run: GO111MODULE=on go get github.com/golang/mock/mockgen
+      - name: Install gomockhandler
+        run: GO111MODULE=on go get github.com/sanposhiho/gomockhandler
+      - name: run gomockhandler check
+        run: $(go env GOPATH)/bin/gomockhandler -config=gomockhandler.json check

@@ -29,6 +29,17 @@ test:
 lint:
 	golangci-lint run --out-format=github-actions --enable=golint,gosec,prealloc,gocognit,bodyclose,gofmt
 
+.PHONY: mock-regi
+mock-regi:
+	gomockhandler -project_root=$(PWD) -source=domain/repository/${T}.go -destination=domain/mock_repository/${T}.go
+
+.PHONY: mock-gen
+mock-gen:
+	gomockhandler -config=gomockhandler.json -concurrency=100 mockgen
+
+.PHONY: mock-check
+mock-check:
+	gomockhandler -config=gomockhandler.json check
 
 .PHONY: deploy
 deploy: prod_down prod_update prod_up
