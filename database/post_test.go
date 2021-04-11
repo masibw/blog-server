@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/google/go-cmp/cmp"
 
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
@@ -27,6 +29,7 @@ func TestPostRepository_FindByID(t *testing.T) {
 		flextime.Restore()
 	})
 
+	// transactionをやめて素のdbにするとなぜかここが原因でtestが止まる
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
 		Title:        "new_post",
@@ -659,13 +662,16 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 }
 
 func TestPostRepository_Delete(t *testing.T) {
-	tx := db.Begin()
+	db := NewTestDB()
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
 	t.Cleanup(func() {
+		db.Exec("set foreign_key_checks = 0")
+		db.Exec("TRUNCATE table posts")
+		db.Exec("set foreign_key_checks = 1")
 		flextime.Restore()
 	})
 
@@ -705,23 +711,33 @@ func TestPostRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.existPost != nil {
-				if err := tx.Create(tt.existPost).Error; err != nil {
+				if err := db.Create(tt.existPost).Error; err != nil {
 					t.Fatal(err)
 				}
 			}
 
-			r := &PostRepository{db: tx}
+			r := &PostRepository{db: db}
 			err := r.Delete(tt.ID)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			//TODO 削除したことを確かめるテスト
+			// 本当に削除されているか確認する
+			got := &entity.Post{}
+			if err = db.Where("id = ?", tt.ID).First(&got).Error; err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					t.Errorf("Delete() error = %v", err)
+				}
+			}
 
+			// gotには初期値(zero value)が入ってくる
+			// gotが初期値 & RecordNotFoundエラーじゃないとFail
+			if diff := cmp.Diff(&entity.Post{}, got); diff != "" && !errors.Is(err, gorm.ErrRecordNotFound) {
+				t.Errorf("Delete() couldn't deleted: %v", got)
+			}
 		})
 	}
 
-	tx.Rollback()
 }
 
 func TestPostRepository_Count(t *testing.T) { // nolint:gocognit

@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/google/go-cmp/cmp"
@@ -411,7 +413,7 @@ func TestUserRepository_FindAll(t *testing.T) { // nolint:gocognit
 }
 
 func TestUserRepository_DeleteByMailAddress(t *testing.T) {
-	tx := db.Begin()
+	db := NewTestDB()
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		t.Fatal(err)
@@ -452,21 +454,30 @@ func TestUserRepository_DeleteByMailAddress(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.existUser != nil {
-				if err := tx.Create(tt.existUser).Error; err != nil {
+				if err := db.Create(tt.existUser).Error; err != nil {
 					t.Fatal(err)
 				}
 			}
 
-			r := &UserRepository{db: tx}
+			r := &UserRepository{db: db}
 			err := r.DeleteByMailAddress(tt.mailAddress)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			//TODO 削除したことを確かめるテスト
+			// 本当に削除されているか確認する
+			got := &entity.User{}
+			if err = db.Where("mail_address = ?", tt.mailAddress).First(&got).Error; err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					t.Errorf("Delete() error = %v", err)
+				}
+			}
 
+			// gotには初期値(zero value)が入ってくる
+			// gotが初期値 & RecordNotFoundエラーじゃないとFail
+			if diff := cmp.Diff(&entity.User{}, got); diff != "" && !errors.Is(err, gorm.ErrRecordNotFound) {
+				t.Errorf("Delete() couldn't deleted: %v", got)
+			}
 		})
 	}
-
-	tx.Rollback()
 }
