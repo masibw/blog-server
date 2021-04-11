@@ -19,7 +19,7 @@ func NewPostsTagsRepository(db *gorm.DB) *PostsTagsRepository {
 
 func (r *PostsTagsRepository) FindByPostIDAndTagName(postID, tagName string) (*entity.PostsTags, error) {
 	postsTags := &entity.PostsTags{}
-	if err := r.db.Debug().Joins("JOIN tags ON tags.id = posts_tags.tag_id").Where("posts_tags.post_id = ? AND tags.name = ? ", postID, tagName).First(&postsTags).Error; err != nil {
+	if err := r.db.Joins("JOIN tags ON tags.id = posts_tags.tag_id").Where("posts_tags.post_id = ? AND tags.name = ? ", postID, tagName).First(&postsTags).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("find posts_tags: %w", entity.ErrPostsTagsNotFound)
 		}

@@ -52,7 +52,7 @@ func (r *TagRepository) Store(tag *entity.Tag) error {
 }
 
 func (r *TagRepository) FindAll(offset, pageSize int, condition string, params []interface{}) (tags []*entity.Tag, err error) {
-	if err = r.db.Debug().Distinct().Where(condition, params...).Limit(pageSize).Offset(offset).Joins("LEFT JOIN posts_tags on posts_tags.tag_id = tags.id").Joins("LEFT JOIN posts on posts_tags.post_id = posts.id").Find(&tags).Error; err != nil {
+	if err = r.db.Distinct().Where(condition, params...).Limit(pageSize).Offset(offset).Joins("LEFT JOIN posts_tags on posts_tags.tag_id = tags.id").Joins("LEFT JOIN posts on posts_tags.post_id = posts.id").Find(&tags).Error; err != nil {
 		err = fmt.Errorf("find all tags: %w", err)
 		return
 	}
