@@ -22,3 +22,6 @@
 
 # git管理するもの
 !.env.test
+
+
+*.pem
