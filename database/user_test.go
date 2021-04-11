@@ -25,7 +25,9 @@ func TestUserRepository_FindByID(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.User{
 		ID:             "abcdefghijklmnopqrstuvwxyz",
@@ -194,7 +196,9 @@ func TestUserRepository_FindByMailAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.User{
 		ID:             "abcdefghijklmnopqrstuvwxyz",

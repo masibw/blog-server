@@ -23,7 +23,9 @@ func TestLinkPostTags(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                 string
@@ -108,7 +110,10 @@ func TestLinkPostTags(t *testing.T) { // nolint:gocognit
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 

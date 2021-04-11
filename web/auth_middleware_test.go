@@ -28,7 +28,9 @@ func TestAuthMiddleware_Authenticate(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -109,7 +111,9 @@ func TestAuthMiddleware_Authenticate(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -156,7 +160,10 @@ func TestAuthMiddleware_Authorize(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
+
 	tests := []struct {
 		name string
 		data interface{}
@@ -186,7 +193,9 @@ func TestAuthMiddleware_Authorize(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)

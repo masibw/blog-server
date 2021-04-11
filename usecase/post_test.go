@@ -26,7 +26,9 @@ func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -43,7 +45,10 @@ func TestPostUseCase_StorePost(t *testing.T) { // nolint:gocognit
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockPost(ctrl)
@@ -85,7 +90,9 @@ func TestPostUseCase_UpdatePost(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -285,7 +292,10 @@ func TestPostUseCase_UpdatePost(t *testing.T) { // nolint:gocognit
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockPost(ctrl)
@@ -346,7 +356,9 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	existsPosts := []*entity.Post{{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -419,7 +431,10 @@ func TestPostUseCase_GetPosts(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockPost(ctrl)
@@ -452,7 +467,9 @@ func TestPostUseCase_GetPost(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	existsPost := &entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -527,7 +544,10 @@ func TestPostUseCase_GetPost(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockPost(ctrl)
@@ -556,7 +576,9 @@ func TestPostUseCase_DeletePost(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -583,7 +605,10 @@ func TestPostUseCase_DeletePost(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockPost(ctrl)

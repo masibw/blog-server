@@ -47,7 +47,9 @@ func TestPostHandler_StorePost(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -270,7 +272,9 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -310,7 +314,9 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	existsPosts := []*entity.Post{{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -492,7 +498,9 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -536,7 +544,9 @@ func TestPostHandler_GetPost(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	existsPost := &entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -599,7 +609,10 @@ func TestPostHandler_GetPost(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -642,7 +655,9 @@ func TestPostHandler_DeletePost(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -676,7 +691,9 @@ func TestPostHandler_DeletePost(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)

@@ -23,7 +23,9 @@ func TestPostsTagsRepository_FindByPostIDAndTagName(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxy1",
@@ -112,6 +114,14 @@ func TestPostsTagsRepository_FindByPostIDAndTagName(t *testing.T) {
 
 func TestPostsTagsRepository_Store(t *testing.T) {
 	tx := db.Begin()
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxy1",
@@ -204,7 +214,9 @@ func TestPostsTagsRepository_Delete(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxy1",
@@ -287,7 +299,9 @@ func TestPostsTagsRepository_DeleteByPostID(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxy1",

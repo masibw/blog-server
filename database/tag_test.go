@@ -23,7 +23,9 @@ func TestTagRepository_FindByID(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Tag{
 		ID:        "abcdefghijklmnopqrstuvwxyz",
@@ -124,7 +126,9 @@ func TestTagRepository_FindAll(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name           string
@@ -324,7 +328,9 @@ func TestTagRepository_Delete(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name     string
@@ -383,7 +389,9 @@ func TestTagRepository_Count(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name      string

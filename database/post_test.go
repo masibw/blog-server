@@ -2,14 +2,10 @@ package database
 
 import (
 	"errors"
-	"os"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/masibw/blog-server/config"
 
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -18,32 +14,7 @@ import (
 	"github.com/Songmu/flextime"
 
 	"github.com/masibw/blog-server/domain/entity"
-
-	"gorm.io/gorm"
 )
-
-var db *gorm.DB
-
-func TestMain(m *testing.M) {
-	var err error
-	var mig *migrate.Migrate
-	mig, err = migrate.New("file://"+os.Getenv("MIGRATION_FILE"), "mysql://"+config.PureDSN())
-	if err != nil {
-		panic(err)
-	}
-	if err := mig.Up(); err != nil {
-		if !errors.Is(err, migrate.ErrNoChange) {
-			panic(err)
-		}
-	}
-
-	db = NewTestDB()
-	if err != nil {
-		panic(err)
-	}
-	code := m.Run()
-	os.Exit(code)
-}
 
 func TestPostRepository_FindByID(t *testing.T) {
 	tx := db.Begin()
@@ -52,7 +23,9 @@ func TestPostRepository_FindByID(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -223,7 +196,9 @@ func TestPostRepository_FindByPermalink(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -292,7 +267,9 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name           string
@@ -688,7 +665,9 @@ func TestPostRepository_Delete(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name      string
@@ -752,7 +731,9 @@ func TestPostRepository_Count(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name           string
