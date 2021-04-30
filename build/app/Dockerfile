@@ -15,7 +15,7 @@ RUN go build .
 
 RUN go build tools/admin/admin.go
 
-FROM alpine:3.13.0
+FROM alpine:latest
 
 ENV DOCKERIZE_VERSION v0.6.1
 
