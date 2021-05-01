@@ -34,8 +34,9 @@ func NewServer(postUC *usecase.PostUseCase, tagUC *usecase.TagUseCase, imageUC *
 	if config.IsLocal() {
 		corsConfig.AllowOrigins = []string{"*"}
 	} else {
-		corsConfig.AllowOrigins = []string{"mesimasi.com"}
+		corsConfig.AllowOrigins = []string{"https://mesimasi.com"}
 	}
+
 	e.Use(cors.New(corsConfig))
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{

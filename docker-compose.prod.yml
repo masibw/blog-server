@@ -10,10 +10,10 @@ services:
       - "443:443"
     volumes:
       # Nginxの設定ファイルを上書きする
-      - ./build/nginx/conf/mesimasi.com.conf:/etc/nginx/conf.d/mesimasi.com.conf:ro
-      - ./build/nginx/conf/key.pem:/etc/ssl/private/key.pem:ro
-      - ./build/nginx/conf/cert.pem:/etc/ssl/certs/cert.pem:ro
-      - ./build/nginx/conf/dhparam.pem:/etc/nginx/ssl/dhparam.pem
+      - /home/ec2-user/build/nginx/conf/mesimasi.com.conf:/etc/nginx/conf.d/mesimasi.com.conf:ro
+      - /home/ec2-user/build/nginx/conf/key.pem:/etc/ssl/private/key.pem:ro
+      - /home/ec2-user/build/nginx/conf/cert.pem:/etc/ssl/certs/cert.pem:ro
+      - /home/ec2-user/build/nginx/conf/dhparam.pem:/etc/nginx/ssl/dhparam.pem
     networks:
       - blog-network
 
@@ -22,14 +22,13 @@ services:
     command: mysqld
     volumes:
       # MySQLの設定ファイル
-      - ./build/db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - /home/ec2-user/build/db/my.cnf:/etc/mysql/conf.d/my.cnf
       # DBのデータを永続化する
       - db-data:/var/lib/mysql
     networks:
       - blog-network
 
   app:
-    image: ${ECR_DOMAIN}/blog-server
     build:
       context: .
       dockerfile: ./build/app/Dockerfile
@@ -42,6 +41,17 @@ services:
       - MIGRATION_FILE=/migrations
       - DB_HOST=db
       - ENV=prod
+      - AUTH_KEY
+      - AWS_ACCESS_KEY
+      - AWS_REGION
+      - AWS_S3_BUCKET_NAME
+      - AWS_SECRET_KEY
+      - ECR_DOMAIN
+      - MYSQL_DATABASE
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - ENV
     entrypoint:
       - dockerize
       - -timeout
