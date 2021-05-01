@@ -25,22 +25,23 @@ services:
       - ./build/db/my.cnf:/etc/mysql/conf.d/my.cnf
       # DBのデータを永続化する
       - db-data:/var/lib/mysql
-    # environmentはenv_fileの前に読み込まれるのでenv_fileで直接環境変数を設定する
-    env_file:
-      - .env.prod
     networks:
       - blog-network
 
   app:
+    image: ${ECR_DOMAIN}/blog-server
     build:
       context: .
       dockerfile: ./build/app/Dockerfile
     command: /blog-server
     depends_on:
       - db
-    env_file:
-      - .env.secret
-      - .env.prod
+    environment:
+      - GIN_MODE=release
+      - TZ=Asia/Tokyo
+      - MIGRATION_FILE=/migrations
+      - DB_HOST=db
+      - ENV=prod
     entrypoint:
       - dockerize
       - -timeout
