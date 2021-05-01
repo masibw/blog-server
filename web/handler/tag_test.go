@@ -67,7 +67,9 @@ func TestTagHandler_StoreTag(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -102,7 +104,9 @@ func TestTagHandler_GetTags(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	existsTags := []*entity.Tag{{
 		ID:        "abcdefghijklmnopqrstuvwxyz",
@@ -194,7 +198,9 @@ func TestTagHandler_GetTags(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -238,7 +244,9 @@ func TestTagHandler_GetTag(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	existsTag := &entity.Tag{
 		ID:        "abcdefghijklmnopqrstuvwxyz",
@@ -279,7 +287,9 @@ func TestTagHandler_GetTag(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)
@@ -314,7 +324,9 @@ func TestTagHandler_DeleteTag(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                 string
@@ -348,7 +360,9 @@ func TestTagHandler_DeleteTag(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			// Repositoryのモック
 			ctrl := gomock.NewController(t)

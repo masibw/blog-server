@@ -2,14 +2,12 @@ package database
 
 import (
 	"errors"
-	"os"
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
+	"gorm.io/gorm"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/masibw/blog-server/config"
+	"github.com/google/go-cmp/cmp"
 
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -18,32 +16,7 @@ import (
 	"github.com/Songmu/flextime"
 
 	"github.com/masibw/blog-server/domain/entity"
-
-	"gorm.io/gorm"
 )
-
-var db *gorm.DB
-
-func TestMain(m *testing.M) {
-	var err error
-	var mig *migrate.Migrate
-	mig, err = migrate.New("file://"+os.Getenv("MIGRATION_FILE"), "mysql://"+config.PureDSN())
-	if err != nil {
-		panic(err)
-	}
-	if err := mig.Up(); err != nil {
-		if !errors.Is(err, migrate.ErrNoChange) {
-			panic(err)
-		}
-	}
-
-	db = NewTestDB()
-	if err != nil {
-		panic(err)
-	}
-	code := m.Run()
-	os.Exit(code)
-}
 
 func TestPostRepository_FindByID(t *testing.T) {
 	tx := db.Begin()
@@ -52,8 +25,11 @@ func TestPostRepository_FindByID(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
+	// transactionをやめて素のdbにするとなぜかここが原因でtestが止まる
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
 		Title:        "new_post",
@@ -223,7 +199,9 @@ func TestPostRepository_FindByPermalink(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	if err := tx.Create(&entity.Post{
 		ID:           "abcdefghijklmnopqrstuvwxyz",
@@ -292,7 +270,9 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name           string
@@ -682,13 +662,18 @@ func TestPostRepository_FindAll(t *testing.T) { // nolint:gocognit
 }
 
 func TestPostRepository_Delete(t *testing.T) {
-	tx := db.Begin()
+	db := NewTestDB()
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		db.Exec("set foreign_key_checks = 0")
+		db.Exec("TRUNCATE table posts")
+		db.Exec("set foreign_key_checks = 1")
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name      string
@@ -726,23 +711,33 @@ func TestPostRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.existPost != nil {
-				if err := tx.Create(tt.existPost).Error; err != nil {
+				if err := db.Create(tt.existPost).Error; err != nil {
 					t.Fatal(err)
 				}
 			}
 
-			r := &PostRepository{db: tx}
+			r := &PostRepository{db: db}
 			err := r.Delete(tt.ID)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			//TODO 削除したことを確かめるテスト
+			// 本当に削除されているか確認する
+			got := &entity.Post{}
+			if err = db.Where("id = ?", tt.ID).First(&got).Error; err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					t.Errorf("Delete() error = %v", err)
+				}
+			}
 
+			// gotには初期値(zero value)が入ってくる
+			// gotが初期値 & RecordNotFoundエラーじゃないとFail
+			if diff := cmp.Diff(&entity.Post{}, got); diff != "" && !errors.Is(err, gorm.ErrRecordNotFound) {
+				t.Errorf("Delete() couldn't deleted: %v", got)
+			}
 		})
 	}
 
-	tx.Rollback()
 }
 
 func TestPostRepository_Count(t *testing.T) { // nolint:gocognit
@@ -752,7 +747,9 @@ func TestPostRepository_Count(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name           string

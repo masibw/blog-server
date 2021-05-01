@@ -25,6 +25,7 @@ down-test:
 test:
 	$(ENV_TEST) richgo test -v ./... -count=1
 
+
 .PHONY: lint
 lint:
 	golangci-lint run --out-format=github-actions --enable=golint,gosec,prealloc,gocognit,bodyclose,gofmt

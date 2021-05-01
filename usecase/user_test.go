@@ -24,7 +24,9 @@ func TestUserUseCase_StoreUser(t *testing.T) { // nolint:gocognit
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -59,7 +61,10 @@ func TestUserUseCase_StoreUser(t *testing.T) { // nolint:gocognit
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockUser(ctrl)
@@ -83,7 +88,9 @@ func TestUserUseCase_GetUserByMailAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	existsUser := &entity.User{
 		ID:          "abcdefghijklmnopqrstuvwxyz",
@@ -127,7 +134,10 @@ func TestUserUseCase_GetUserByMailAddress(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockUser(ctrl)
@@ -156,7 +166,9 @@ func TestUserUseCase_UpdateLastLoggedinAt(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -197,7 +209,10 @@ func TestUserUseCase_UpdateLastLoggedinAt(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockUser(ctrl)
@@ -222,7 +237,9 @@ func TestUserUseCase_DeleteUserByMailAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 	flextime.Fix(time.Date(2021, 1, 22, 0, 0, 0, 0, loc))
-	defer flextime.Restore()
+	t.Cleanup(func() {
+		flextime.Restore()
+	})
 
 	tests := []struct {
 		name                  string
@@ -249,7 +266,10 @@ func TestUserUseCase_DeleteUserByMailAddress(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mr := mock_repository.NewMockUser(ctrl)
