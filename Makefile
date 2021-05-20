@@ -3,15 +3,15 @@ ENV_TEST = $(shell cat $(ENV_TEST_FILE))
 
 .PHONY: up
 up:
-	docker-compose -f docker-compose.local.yml up -d --build
+	docker compose -f docker-compose.local.yml up -d --build
 
 .PHONY: down
 down:
-	docker-compose -f docker-compose.local.yml down
+	docker compose -f docker-compose.local.yml down
 
 .PHONY: logs
 logs:
-	docker-compose -f docker-compose.local.yml logs ${T}
+	docker compose -f docker-compose.local.yml logs ${T}
 
 .PHONY: up-test
 up-test:
@@ -39,16 +39,16 @@ prod_update:
 
 .PHONY: prod_up
 prod_up:
-	docker-compose -f docker-compose.prod.yml up -d --build
+	docker compose -f docker-compose.prod.yml up -d --build
 
 .PHONY: prod_down
 prod_down:
-	docker-compose -f docker-compose.prod.yml down
+	docker compose -f docker-compose.prod.yml down
 
 .PHONY: admin
 admin:
-	docker-compose -f docker-compose.local.yml exec app /admin
+	docker compose -f docker-compose.local.yml exec app /admin
 
 .PHONY: admin-del
 admin-del:
-	docker-compose -f docker-compose.local.yml exec app /admin -mode=delete
+	docker compose -f docker-compose.local.yml exec app /admin -mode=delete
