@@ -31,7 +31,7 @@ lint:
 
 .PHONY: mock-regi
 mock-regi:
-	gomockhandler -project_root=$(PWD) -source=domain/repository/${T}.go -destination=domain/mock_repository/${T}.go
+	gomockhandler -config=./gomockhandler.json -source=./domain/repository/${T}.go -destination=./domain/mock_repository/${T}.go
 
 .PHONY: mock-gen
 mock-gen:
