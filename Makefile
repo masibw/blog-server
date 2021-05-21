@@ -35,7 +35,7 @@ mock-regi:
 
 .PHONY: mock-gen
 mock-gen:
-	gomockhandler -config=gomockhandler.json -concurrency=100 mockgen
+	gomockhandler -config=gomockhandler.json mockgen
 
 .PHONY: mock-check
 mock-check:

@@ -5,50 +5,64 @@
 package mock_repository
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
-	reflect "reflect"
 )
 
-// MockUser is a mock of User interface
+// MockUser is a mock of User interface.
 type MockUser struct {
 	ctrl     *gomock.Controller
 	recorder *MockUserMockRecorder
 }
 
-// MockUserMockRecorder is the mock recorder for MockUser
+// MockUserMockRecorder is the mock recorder for MockUser.
 type MockUserMockRecorder struct {
 	mock *MockUser
 }
 
-// NewMockUser creates a new mock instance
+// NewMockUser creates a new mock instance.
 func NewMockUser(ctrl *gomock.Controller) *MockUser {
 	mock := &MockUser{ctrl: ctrl}
 	mock.recorder = &MockUserMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUser) EXPECT() *MockUserMockRecorder {
 	return m.recorder
 }
 
-// FindByID mocks base method
-func (m *MockUser) FindByID(id string) (*entity.User, error) {
+// Create mocks base method.
+func (m *MockUser) Create(user *entity.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", id)
-	ret0, _ := ret[0].(*entity.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Create", user)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// FindByID indicates an expected call of FindByID
-func (mr *MockUserMockRecorder) FindByID(id interface{}) *gomock.Call {
+// Create indicates an expected call of Create.
+func (mr *MockUserMockRecorder) Create(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockUser)(nil).FindByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUser)(nil).Create), user)
 }
 
-// FindAll mocks base method
+// DeleteByMailAddress mocks base method.
+func (m *MockUser) DeleteByMailAddress(id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteByMailAddress", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteByMailAddress indicates an expected call of DeleteByMailAddress.
+func (mr *MockUserMockRecorder) DeleteByMailAddress(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByMailAddress", reflect.TypeOf((*MockUser)(nil).DeleteByMailAddress), id)
+}
+
+// FindAll mocks base method.
 func (m *MockUser) FindAll(offset, pageSize int, condition string, params []interface{}) ([]*entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, condition, params)
@@ -57,13 +71,28 @@ func (m *MockUser) FindAll(offset, pageSize int, condition string, params []inte
 	return ret0, ret1
 }
 
-// FindAll indicates an expected call of FindAll
+// FindAll indicates an expected call of FindAll.
 func (mr *MockUserMockRecorder) FindAll(offset, pageSize, condition, params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockUser)(nil).FindAll), offset, pageSize, condition, params)
 }
 
-// FindByMailAddress mocks base method
+// FindByID mocks base method.
+func (m *MockUser) FindByID(id string) (*entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", id)
+	ret0, _ := ret[0].(*entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockUserMockRecorder) FindByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockUser)(nil).FindByID), id)
+}
+
+// FindByMailAddress mocks base method.
 func (m *MockUser) FindByMailAddress(mailAddress string) (*entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByMailAddress", mailAddress)
@@ -72,27 +101,13 @@ func (m *MockUser) FindByMailAddress(mailAddress string) (*entity.User, error) {
 	return ret0, ret1
 }
 
-// FindByMailAddress indicates an expected call of FindByMailAddress
+// FindByMailAddress indicates an expected call of FindByMailAddress.
 func (mr *MockUserMockRecorder) FindByMailAddress(mailAddress interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByMailAddress", reflect.TypeOf((*MockUser)(nil).FindByMailAddress), mailAddress)
 }
 
-// Create mocks base method
-func (m *MockUser) Create(user *entity.User) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Create indicates an expected call of Create
-func (mr *MockUserMockRecorder) Create(user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUser)(nil).Create), user)
-}
-
-// UpdateLastLoggedinAt mocks base method
+// UpdateLastLoggedinAt mocks base method.
 func (m *MockUser) UpdateLastLoggedinAt(user *entity.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateLastLoggedinAt", user)
@@ -100,22 +115,8 @@ func (m *MockUser) UpdateLastLoggedinAt(user *entity.User) error {
 	return ret0
 }
 
-// UpdateLastLoggedinAt indicates an expected call of UpdateLastLoggedinAt
+// UpdateLastLoggedinAt indicates an expected call of UpdateLastLoggedinAt.
 func (mr *MockUserMockRecorder) UpdateLastLoggedinAt(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLastLoggedinAt", reflect.TypeOf((*MockUser)(nil).UpdateLastLoggedinAt), user)
-}
-
-// DeleteByMailAddress mocks base method
-func (m *MockUser) DeleteByMailAddress(id string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteByMailAddress", id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteByMailAddress indicates an expected call of DeleteByMailAddress
-func (mr *MockUserMockRecorder) DeleteByMailAddress(id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByMailAddress", reflect.TypeOf((*MockUser)(nil).DeleteByMailAddress), id)
 }
