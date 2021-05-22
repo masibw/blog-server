@@ -1,0 +1,40 @@
+{
+	"mocks": {
+		"domain/mock_repository/post.go": {
+			"checksum": "ibBshfFp/QuZS90PrZVXPw==",
+			"source_checksum": "fiBefSRzu/kSHbO/jhD3cA==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "domain/repository/post.go",
+				"destination": "domain/mock_repository/post.go"
+			}
+		},
+		"domain/mock_repository/posts_tags.go": {
+			"checksum": "cdqGA1UPRHIEJUNV9MnELw==",
+			"source_checksum": "OR04ARUe7c7BayFJgSozfw==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "domain/repository/posts_tags.go",
+				"destination": "domain/mock_repository/posts_tags.go"
+			}
+		},
+		"domain/mock_repository/user.go": {
+			"checksum": "NXNZ5reJ0I2TNZjVUiIH8A==",
+			"source_checksum": "UKT/tbzbzsJnRBXP4IZu/Q==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "domain/repository/user.go",
+				"destination": "domain/mock_repository/user.go"
+			}
+		},
+		"domain/mock_repository/tag.go": {
+			"checksum": "8Tukghmfg2LCkai6/T8Z+g==",
+			"source_checksum": "Il0s5h5IKFzwoP0pxlnhbw==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "domain/repository/tag.go",
+				"destination": "domain/mock_repository/tag.go"
+			}
+		}
+	}
+}

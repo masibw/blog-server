@@ -5,108 +5,36 @@
 package mock_repository
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	entity "github.com/masibw/blog-server/domain/entity"
-	reflect "reflect"
 )
 
-// MockTag is a mock of Tag interface
+// MockTag is a mock of Tag interface.
 type MockTag struct {
 	ctrl     *gomock.Controller
 	recorder *MockTagMockRecorder
 }
 
-// MockTagMockRecorder is the mock recorder for MockTag
+// MockTagMockRecorder is the mock recorder for MockTag.
 type MockTagMockRecorder struct {
 	mock *MockTag
 }
 
-// NewMockTag creates a new mock instance
+// NewMockTag creates a new mock instance.
 func NewMockTag(ctrl *gomock.Controller) *MockTag {
 	mock := &MockTag{ctrl: ctrl}
 	mock.recorder = &MockTagMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockTag) EXPECT() *MockTagMockRecorder {
 	return m.recorder
 }
 
-// FindByID mocks base method
-func (m *MockTag) FindByID(id string) (*entity.Tag, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", id)
-	ret0, _ := ret[0].(*entity.Tag)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindByID indicates an expected call of FindByID
-func (mr *MockTagMockRecorder) FindByID(id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockTag)(nil).FindByID), id)
-}
-
-// FindAll mocks base method
-func (m *MockTag) FindAll(offset, pageSize int, condition string, params []interface{}) ([]*entity.Tag, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, condition, params)
-	ret0, _ := ret[0].([]*entity.Tag)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindAll indicates an expected call of FindAll
-func (mr *MockTagMockRecorder) FindAll(offset, pageSize, condition, params interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockTag)(nil).FindAll), offset, pageSize, condition, params)
-}
-
-// FindByName mocks base method
-func (m *MockTag) FindByName(name string) (*entity.Tag, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByName", name)
-	ret0, _ := ret[0].(*entity.Tag)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindByName indicates an expected call of FindByName
-func (mr *MockTagMockRecorder) FindByName(name interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByName", reflect.TypeOf((*MockTag)(nil).FindByName), name)
-}
-
-// Store mocks base method
-func (m *MockTag) Store(tag *entity.Tag) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Store", tag)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Store indicates an expected call of Store
-func (mr *MockTagMockRecorder) Store(tag interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockTag)(nil).Store), tag)
-}
-
-// Delete mocks base method
-func (m *MockTag) Delete(id string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Delete indicates an expected call of Delete
-func (mr *MockTagMockRecorder) Delete(id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTag)(nil).Delete), id)
-}
-
-// Count mocks base method
+// Count mocks base method.
 func (m *MockTag) Count() (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count")
@@ -115,8 +43,81 @@ func (m *MockTag) Count() (int, error) {
 	return ret0, ret1
 }
 
-// Count indicates an expected call of Count
+// Count indicates an expected call of Count.
 func (mr *MockTagMockRecorder) Count() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockTag)(nil).Count))
+}
+
+// Delete mocks base method.
+func (m *MockTag) Delete(id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockTagMockRecorder) Delete(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTag)(nil).Delete), id)
+}
+
+// FindAll mocks base method.
+func (m *MockTag) FindAll(offset, pageSize int, condition string, params []interface{}) ([]*entity.Tag, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAll", offset, pageSize, condition, params)
+	ret0, _ := ret[0].([]*entity.Tag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindAll indicates an expected call of FindAll.
+func (mr *MockTagMockRecorder) FindAll(offset, pageSize, condition, params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockTag)(nil).FindAll), offset, pageSize, condition, params)
+}
+
+// FindByID mocks base method.
+func (m *MockTag) FindByID(id string) (*entity.Tag, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", id)
+	ret0, _ := ret[0].(*entity.Tag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockTagMockRecorder) FindByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockTag)(nil).FindByID), id)
+}
+
+// FindByName mocks base method.
+func (m *MockTag) FindByName(name string) (*entity.Tag, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByName", name)
+	ret0, _ := ret[0].(*entity.Tag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByName indicates an expected call of FindByName.
+func (mr *MockTagMockRecorder) FindByName(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByName", reflect.TypeOf((*MockTag)(nil).FindByName), name)
+}
+
+// Store mocks base method.
+func (m *MockTag) Store(tag *entity.Tag) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Store", tag)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Store indicates an expected call of Store.
+func (mr *MockTagMockRecorder) Store(tag interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockTag)(nil).Store), tag)
 }
