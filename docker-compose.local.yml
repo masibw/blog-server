@@ -10,7 +10,7 @@ services:
       - "443:443"
     volumes:
       # Nginxの設定ファイルを上書きする
-      - ./build/nginx/conf/mesimasi.com.conf:/etc/nginx/conf.d/mesimasi.com.conf:ro
+      - ./build/nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./build/nginx/conf/key.pem:/etc/ssl/private/key.pem:ro
       - ./build/nginx/conf/cert.pem:/etc/ssl/certs/cert.pem:ro
       - ./build/nginx/conf/dhparam.pem:/etc/nginx/ssl/dhparam.pem
