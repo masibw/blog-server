@@ -52,12 +52,6 @@ services:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_USER
       - ENV
-    entrypoint:
-      - dockerize
-      - -timeout
-      - 60s
-      - -wait
-      - tcp://db:3306
     networks:
       - blog-network
 
