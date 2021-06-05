@@ -15,20 +15,13 @@ RUN go build .
 
 RUN go build tools/admin/admin.go
 
-FROM alpine:latest
-
+FROM gcr.io/distroless/static-debian10:latest
 ENV DOCKERIZE_VERSION v0.6.1
 
-RUN apk add --no-cache bash ca-certificates curl openssl tzdata && \
-    cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
-
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
+ENV TZ=Asia/Tokyo
 
 COPY ./migrations /migrations
 
 COPY --from=build /go/src/github.com/masibw/blog-server/blog-server /
 COPY --from=build /go/src/github.com/masibw/blog-server/admin /
-RUN chmod a+x /blog-server
+ENTRYPOINT ["/blog-server"]
