@@ -10,10 +10,10 @@ services:
       - "443:443"
     volumes:
       # Nginxの設定ファイルを上書きする
-      - ./build/nginx/conf/mesimasi.com.conf:/etc/nginx/conf.d/mesimasi.com.conf:ro
-      - ./build/nginx/conf/key.pem:/etc/ssl/private/key.pem:ro
-      - ./build/nginx/conf/cert.pem:/etc/ssl/certs/cert.pem:ro
-      - ./build/nginx/conf/dhparam.pem:/etc/nginx/ssl/dhparam.pem
+      - /home/cd_actions/build/nginx/conf/mesimasi.com.conf:/etc/nginx/conf.d/mesimasi.com.conf:ro
+      - /home/cd_actions/build/nginx/conf/key.pem:/etc/ssl/private/key.pem:ro
+      - /home/cd_actions/build/nginx/conf/cert.pem:/etc/ssl/certs/cert.pem:ro
+      - /home/cd_actions/build/nginx/conf/dhparam.pem:/etc/nginx/ssl/dhparam.pem
     networks:
       - blog-network
 
@@ -22,12 +22,9 @@ services:
     command: mysqld
     volumes:
       # MySQLの設定ファイル
-      - ./build/db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - /home/cd_actions/build/db/my.cnf:/etc/mysql/conf.d/my.cnf
       # DBのデータを永続化する
       - db-data:/var/lib/mysql
-    # environmentはenv_fileの前に読み込まれるのでenv_fileで直接環境変数を設定する
-    env_file:
-      - .env.prod
     networks:
       - blog-network
 
@@ -38,9 +35,23 @@ services:
     command: /blog-server
     depends_on:
       - db
-    env_file:
-      - .env.secret
-      - .env.prod
+    environment:
+      - GIN_MODE=release
+      - TZ=Asia/Tokyo
+      - MIGRATION_FILE=/migrations
+      - DB_HOST=db
+      - ENV=prod
+      - AUTH_KEY
+      - AWS_ACCESS_KEY
+      - AWS_REGION
+      - AWS_S3_BUCKET_NAME
+      - AWS_SECRET_KEY
+      - ECR_DOMAIN
+      - MYSQL_DATABASE
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - ENV
     entrypoint:
       - dockerize
       - -timeout

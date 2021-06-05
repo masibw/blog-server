@@ -1,0 +1,50 @@
+name: deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deplooy:
+    name: deploy app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Set docker context
+        run: |
+          docker context create --default-stack-orchestrator=swarm --docker "host=ssh://${SSH_USER_NAME}@${SSH_IP}:${SSH_PORT}" remote
+        env:
+          SSH_USER_NAME: ${{ secrets.SSH_USER_NAME }}
+          SSH_IP: ${{ secrets.SSH_IP }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+      - name: Prepare TLS files
+        run: |
+          echo $KEY_PEM > build/nginx/conf/cert.pem
+          echo $DHPARAM_PEM > build/nginx/conf/dhparam.pem
+          echo $CERT_PEM > build/nginx/conf/key.pem
+        shell: bash
+        env:
+          KEY_PEM : ${{secrets.KEY_PEM}}
+          CERT_PEM: ${{secrets.CERT_PEM}}
+          DHPARAM_PEM: ${{secrets.DHPARAM_PEM}}
+      - name: Deploy
+        run: |
+          docker-compose -f docker-compose.prod.yml --context remote stop
+          docker-compose -f docker-compose.prod.yml --context remote up --build -d
+        env:
+          COMPOSE_HTTP_TIMEOUT: 600
+          AUTH_KEY: ${{ secrets.AUTH_KEY }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          MYSQL_DATABASE:  ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          ENV: "prod"
